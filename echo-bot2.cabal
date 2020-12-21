@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fbdb5d1153427067b0be28910e935785c2b0d3124e960e62b65aeff750c6abeb
+-- hash: 74be11d23f257c78311d0e231ffc3e9c592b09b5bd98e435dd3a8b1587b75ce6
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -27,11 +27,35 @@ source-repository head
 
 library
   exposed-modules:
+      Adapter.Tel.TelBot
+      Adapter.Tel.TelConfig
+      Adapter.Tel.TelEchoBot
+      Adapter.Tel.TelEntity
+      Adapter.Tel.TelMain
+      Adapter.VK.VKBot
+      Adapter.VK.VKConfig
+      Adapter.VK.VKEchoBot
+      Adapter.VK.VKEntity
+      Adapter.VK.VKKeyboard
+      Adapter.VK.VKMain
+      Adapter.VK.VKRequest
+      Bot.Bot
+      Bot.EchoBot
+      Bot.Error
+      Bot.Message
+      Bot.Request
+      Config.Config
+      Config.ParseConfig
       Lib
+      Log.ImportLog
+      Log.Log
+      Log.LogEntity
+      Log.LogMonad
   other-modules:
       Paths_echo_bot2
   hs-source-dirs:
       src
+  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
   build-depends:
       aeson
     , async
@@ -63,6 +87,7 @@ executable echo-bot2-exe
       Paths_echo_bot2
   hs-source-dirs:
       app
+  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -97,6 +122,7 @@ test-suite echo-bot2-test
       Paths_echo_bot2
   hs-source-dirs:
       test
+  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

@@ -43,6 +43,20 @@ dependencies:
 - parsec
 - safe-exceptions
 
+default-extensions:
+- NoImplicitPrelude
+- OverloadedStrings
+- MultiParamTypeClasses
+- ConstraintKinds
+- FlexibleContexts
+- DeriveGeneric
+- GeneralizedNewtypeDeriving
+- FlexibleInstances
+- ExistentialQuantification
+- RankNTypes
+- FunctionalDependencies
+- RecordWildCards
+
 library:
   source-dirs: src
 
