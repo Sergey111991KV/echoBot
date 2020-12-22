@@ -1,15 +1,32 @@
 module Bot.EchoBot where
 
 import ClassyPrelude
+    ( ($),
+      Monad(return, (>>)),
+      Num((-)),
+      Ord((>), (<=)),
+      Semigroup((<>)),
+      Bool(..),
+      Integer,
+      Maybe(..),
+      Either(..),
+      (.),
+      MonadIO(..),
+      (&&),
+      Text,
+      readMay )
   
 import Control.Monad.Except
     ( MonadError(..) )
-import Control.Concurrent
+import Control.Concurrent ( threadDelay )
 
 import Bot.Message (BotCompatibleMessage(textMsg), BotMsg(..))
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
+    ( errorText,
+      Error(CantConvertFromArray, CannotRepeatCountSet,
+            CannotRepeatFalseNumber, NotNewMsg, CantConvertFromData) )
    
 
 class (Bot m ,MonadError Error m )=>

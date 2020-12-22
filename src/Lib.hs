@@ -6,9 +6,38 @@ import qualified Adapter.Tel.TelMain as Tel
 import qualified Adapter.VK.VKMain as VKBot
 import Bot.Bot (Bot(..))
 import Control.Monad.Except
+    ( Monad(return),
+      Functor,
+      MonadIO(..),
+      ExceptT,
+      MonadError(throwError),
+      runExceptT )
 
-import Bot.EchoBot
+import Bot.EchoBot ( finalEchoBot, EchoBot(..) )
 import ClassyPrelude
+    ( ($),
+      Monad(return),
+      Functor,
+      Applicative,
+      Semigroup((<>)),
+      Bool(..),
+      IO,
+      Either(..),
+      String,
+      (.),
+      SomeException,
+      MonadIO(..),
+      FilePath,
+      Text,
+      getLine,
+      print,
+      asks,
+      getCurrentTime,
+      try,
+      concurrently,
+      newTVarIO,
+      MonadReader,
+      ReaderT(..) )
    
  
 import Data.Has (Has(getter))

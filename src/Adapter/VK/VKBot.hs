@@ -1,11 +1,24 @@
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-   
- 
+    ( ($),
+      Monad(return),
+      Show(show),
+      Semigroup((<>)),
+      Integer,
+      Either(..),
+      String,
+      (.),
+      MonadIO(liftIO),
+      Text,
+      print,
+      pack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
 import Data.Aeson
-  
-   
+    ( eitherDecode, Array, Result(Error), Value(String, Number) )
 import Control.Monad.Except
     ( MonadError(throwError) )
 import Data.ByteString.Lazy.Internal (ByteString)
@@ -107,9 +120,6 @@ setNewTs ts = do
   let newDynSt = dynSt {longConfig =  (longConfig dynSt) {tsLast = ts} }
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   return ()
-
-
-  -- decode MessageVK
 
 parseArrays :: VKMonad r m => [Array] -> m BotMsg
 parseArrays [] = do

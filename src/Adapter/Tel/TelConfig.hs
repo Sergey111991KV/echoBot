@@ -1,6 +1,15 @@
 module Adapter.Tel.TelConfig where
 
 import ClassyPrelude
+    ( Show,
+      Generic,
+      Bool,
+      Integer,
+      String,
+      MonadIO,
+      TVar,
+      Text,
+      MonadReader )
 
 import Control.Monad.Except ( MonadError )
 import Data.Has (Has)

@@ -1,28 +1,27 @@
 module Adapter.VK.VKKeyboard where
 
 import ClassyPrelude
-  ( Applicative((<*>))
-  , Bool
-  , FilePath
-  , Generic
-  , IO
-  , Maybe
-  , MonadPlus(mzero)
-  , Show
-  , ($)
-  , (<$>)
-  )
+    ( ($),
+      Show,
+      Applicative((<*>)),
+      Generic,
+      Bool,
+      Maybe,
+      IO,
+      (<$>),
+      MonadPlus(mzero),
+      FilePath )
 
 import Data.Aeson
-  ( Array
-  , FromJSON(parseJSON)
-  , KeyValue((.=))
-  , ToJSON(toJSON)
-  , Value(Object)
-  , (.:)
-  , decode
-  , object
-  )
+    ( decode,
+      (.:),
+      object,
+      FromJSON(parseJSON),
+      Array,
+      Value(Object),
+      KeyValue((.=)),
+      ToJSON(toJSON) )
+
 
 import qualified Data.ByteString.Lazy as B
 import System.IO.Unsafe (unsafePerformIO)

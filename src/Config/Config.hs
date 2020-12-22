@@ -1,7 +1,18 @@
 module Config.Config where
 
 import ClassyPrelude
-import Control.Monad.Except 
+    ( ($),
+      Eq((==)),
+      Monad(return),
+      Bool(True),
+      Maybe(Nothing),
+      Either,
+      (||),
+      fromMaybe,
+      Text,
+      pack,
+      IsMap(lookup) )
+import Control.Monad.Except ( MonadError(throwError) ) 
 import qualified Prelude as P
 import qualified Text.Parsec as Pars
 
