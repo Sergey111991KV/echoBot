@@ -59,7 +59,11 @@ default-extensions:
 
 
 library:
+  ghc-options:
+    - -Wall
+    - -Werror
   source-dirs: src
+  
 
 executables:
   echo-bot2-exe:

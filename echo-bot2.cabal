@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: aa554c26bf68de77da2efc2d27f7dc7094949be3ef307c3eebecb1174cf80bb0
+-- hash: 36ddfff91abdba804a5e444892a8e5b0e64976d96ffba2c548d93e1abc88a1ef
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -56,6 +56,7 @@ library
   hs-source-dirs:
       src
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
+  ghc-options: -Wall -Werror
   build-depends:
       aeson
     , async
