@@ -16,7 +16,7 @@ import ClassyPrelude
 import Control.Monad.Except
     (  MonadError(throwError) )  
 import Data.Has (Has(getter))
-
+import Adapter.VK.VKKeyboard 
 import Adapter.VK.VKConfig
     ( VKUrl(VKUrl),
       VKToken(takeVKToken),
@@ -26,16 +26,18 @@ import Adapter.VK.VKConfig
       DynamicState(waitForRepeat, repeats) )
 import qualified Log.ImportLog as Log
 -- import Adapter.VK.VKRequest (getKeyButtons, sendVKKeyboard)
-import Adapter.VK.VKRequest hiding (instance MonadHttp)
+import Adapter.VK.VKRequest  
 import Bot.Error ( Error(CannotSendKeyboard) ) 
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
+import Data.Aeson
 
 
 sendMsgKeyboard :: (MonadIO m, VKMonad r m) => BotMsg -> m ()
 sendMsgKeyboard (BotMsg msg) = do
   st <- asks getter 
-  let keyKeyboard = getKeyButtons
-  case keyKeyboard of
+  keyKeyboard <- liftIO  getJSON
+  let keyboardMaybe =  (decode keyKeyboard :: Maybe Keyboard)
+  case keyboardMaybe of
     Nothing -> do
       throwError CannotSendKeyboard
     Just k  -> do

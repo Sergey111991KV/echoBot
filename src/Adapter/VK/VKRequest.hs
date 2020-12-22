@@ -1,7 +1,6 @@
 -- {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Adapter.VK.VKRequest
   ( sendVKKeyboard
-  , getKeyButtons
   , msgSendVK
   , urlEncodeVars
   , sendRequest'
@@ -46,7 +45,7 @@ import Network.HTTP.Req
 
 import Bot.Request (buildRequestBody, sendRequest', urlEncodeVars)
 
-import Adapter.VK.VKKeyboard (Keyboard, getKeyButtons)
+import Adapter.VK.VKKeyboard (Keyboard)
 
 -- newtype MonIO a = IO a
 
