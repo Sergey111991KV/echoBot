@@ -30,19 +30,19 @@ data MessageVK =
     }
   deriving (Show, Generic)
 
-instance FromJSON MessageVK where
-  parseJSON (Array v) 
-      | V.length v == 7 = do
-            x <- parseJSON $ v V.! 0
-            y <- parseJSON $ v V.! 1
-            e <- parseJSON $ v V.! 0
-            r <- parseJSON $ v V.! 1
-            t <- parseJSON $ v V.! 0
-            i <- parseJSON $ v V.! 1
-            u <- parseJSON $ v V.! 0
-            return $ MessageVK x y e r t i u
-        | otherwise = mzero
-  parseJSON _ = mzero
+-- instance FromJSON MessageVK where
+--   parseJSON (Array v) 
+--       | V.length v == 7 = do
+--             x <- parseJSON $ v V.! 0
+--             y <- parseJSON $ v V.! 1
+--             e <- parseJSON $ v V.! 0
+--             r <- parseJSON $ v V.! 1
+--             t <- parseJSON $ v V.! 0
+--             i <- parseJSON $ v V.! 1
+--             u <- parseJSON $ v V.! 0
+--             return $ MessageVK x y e r t i u
+--         | otherwise = mzero
+--   parseJSON _ = mzero
 
 
 newtype ResponseVKSend =

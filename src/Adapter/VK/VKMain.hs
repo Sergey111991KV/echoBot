@@ -7,8 +7,8 @@ import Adapter.VK.VKBot as VK
   , getMsgLast
   , getNameAdapter
   , getNewStateLongPool
-  -- , parseArray
-  -- , parseArrays
+  , parseArray
+  , parseArrays
   , parseValueInt
   , parseValueText
   , sendMsg
