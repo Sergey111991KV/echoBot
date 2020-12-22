@@ -25,7 +25,8 @@ import Adapter.VK.VKConfig
       StaticState(accessToken, version, helpMsg),
       DynamicState(waitForRepeat, repeats) )
 import qualified Log.ImportLog as Log
-import Adapter.VK.VKRequest (getKeyButtons, sendVKKeyboard)
+-- import Adapter.VK.VKRequest (getKeyButtons, sendVKKeyboard)
+import Adapter.VK.VKRequest hiding (instance MonadHttp)
 import Bot.Error ( Error(CannotSendKeyboard) ) 
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
 

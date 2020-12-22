@@ -57,6 +57,7 @@ default-extensions:
 - FunctionalDependencies
 - RecordWildCards
 
+
 library:
   source-dirs: src
 

@@ -1,22 +1,8 @@
+{-# LANGUAGE TypeSynonymInstances #-}
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-    ( ($),
-      Monad(return),
-      Show(show),
-      Semigroup((<>)),
-      Integer,
-      Either(..),
-      String,
-      (.),
-      MonadIO(liftIO),
-      Text,
-      print,
-      pack,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
+  
 import Data.Aeson
     ( eitherDecode, Array, Result(Error), Value(String, Number) )
 import Control.Monad.Except
@@ -44,6 +30,7 @@ import Adapter.VK.VKEntity
   , VKLongPollConfig(key, server, tsLast)
   )
 import Adapter.VK.VKRequest (msgSendVK, urlEncodeVars)
+-- import Adapter.VK.VKRequest hiding (instance MonadHttp)  -- Why this error??
 import Bot.Error
     ( Error(CannotSendMsgHelp, NotAnswer, CantConvertFromData,
             CantConvertFromArray, CannotSendMsg) )

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
+-- {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Adapter.VK.VKRequest
   ( sendVKKeyboard
   , getKeyButtons
@@ -48,8 +48,10 @@ import Bot.Request (buildRequestBody, sendRequest', urlEncodeVars)
 
 import Adapter.VK.VKKeyboard (Keyboard, getKeyButtons)
 
--- type MonIO = IO
+-- newtype MonIO a = IO a
 
+-- instance Monad MonIO
+-- instance  MonadIO MonIO
 instance MonadHttp IO where
   handleHttpException = throwIO
 
