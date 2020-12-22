@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a02acf74f9cf08cd9cdb40457ab2c89361b04237dcc05548d53a2589be30070f
+-- hash: aa554c26bf68de77da2efc2d27f7dc7094949be3ef307c3eebecb1174cf80bb0
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -119,6 +119,9 @@ test-suite echo-bot2-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Bot.BotSpec
+      Bot.EchoBotSpec
+      Fixture
       Paths_echo_bot2
   hs-source-dirs:
       test

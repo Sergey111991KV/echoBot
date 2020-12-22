@@ -48,6 +48,7 @@ import Bot.Request (buildRequestBody, sendRequest', urlEncodeVars)
 
 import Adapter.VK.VKKeyboard (Keyboard, getKeyButtons)
 
+-- type MonIO = IO
 
 instance MonadHttp IO where
   handleHttpException = throwIO

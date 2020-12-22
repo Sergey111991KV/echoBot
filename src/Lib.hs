@@ -6,9 +6,7 @@ import qualified Adapter.Tel.TelMain as Tel
 import qualified Adapter.VK.VKMain as VKBot
 import Bot.Bot (Bot(..))
 import Control.Monad.Except
-    ( Monad(return),
-      Functor,
-      MonadIO(..),
+    ( 
       ExceptT,
       MonadError(throwError),
       runExceptT )
