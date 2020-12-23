@@ -1,0 +1,4 @@
+TelegramToken token
+VKtoken token
+RepeatCount 2
+msgHelp "default help message"
