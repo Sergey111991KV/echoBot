@@ -215,4 +215,3 @@ startBot = do
   (_, _) <- 
     concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
   print ("End" :: String )
-  
