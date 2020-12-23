@@ -52,7 +52,7 @@ library
       Log.LogEntity
       Log.LogMonad
   other-modules:
-      Paths_echo_bot2
+  
   hs-source-dirs:
       src
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
