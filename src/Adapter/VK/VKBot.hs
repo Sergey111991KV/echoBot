@@ -226,6 +226,3 @@ sendTextVK' (BotMsg msg) = do
 
 -- "https://api.vk.com/method/messages.send?access_token=VKToken%20%7BtakeVKToken%20%3D%20%221e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05%22%7D&v=VKVersion%20%7BtakeVKVersion%20%3D%205.52%7D&user_id=442266618&message=textMessage"
 --  Это работает - но не передает body - все в строке запросе
-
-
-
