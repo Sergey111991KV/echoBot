@@ -14,36 +14,11 @@ import Adapter.VK.VKConfig
   )
 import Adapter.VK.VKEntity (ResponseVKSend)
 import ClassyPrelude
-  ( IO
-  , Integer
-  , Monad(return)
-  , MonadIO(liftIO)
-  , Monoid(mempty)
-  , Semigroup((<>))
-  , String
-  , Text
-  , Utf8(decodeUtf8)
-  , ($)
-  , (.)
-  , print
-  , throwIO
-  )
 import Data.Aeson (Result, Value, encode, fromJSON)
 import Network.HTTP.Req
-  ( MonadHttp(handleHttpException)
-  , POST(POST)
-  , ReqBodyUrlEnc(ReqBodyUrlEnc)
-  , (/:)
-  , (=:)
-  , defaultHttpConfig
-  , https
-  , jsonResponse
-  , req
-  , responseBody
-  , runReq
-  )
+  
 
-import Bot.Request (buildRequestBody, sendRequest', urlEncodeVars)
+import Bot.Request 
 import Adapter.VK.VKKeyboard (Keyboard)
 
 
@@ -67,6 +42,7 @@ sendVKKeyboard url keyboard token version uiD =
         mempty
     liftIO . print . decodeUtf8 $ encode keyboard
     liftIO $ print (responseBody r :: Value)
+
 
 msgSendVK ::
      VKUrl
