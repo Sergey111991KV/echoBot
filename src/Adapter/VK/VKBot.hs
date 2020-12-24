@@ -2,7 +2,7 @@
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-  
+import Bot.Request
 import Data.Aeson
     ( eitherDecode, Array, Result(Error), Value(String, Number) )
 import Control.Monad.Except
@@ -12,8 +12,6 @@ import Data.Has (Has(getter))
 import Data.Scientific (Scientific(coefficient))
 import qualified Data.Vector as V
 import Network.HTTP.Client.TLS (newTlsManager)
-import Network.HTTP.Conduit
-    ( parseRequest, Response(responseBody), httpLbs )
 import qualified  Network.HTTP.Simple as Simple
 import Adapter.VK.VKConfig
     ( VKUrl(VKUrl),
@@ -29,8 +27,8 @@ import Adapter.VK.VKEntity
   , UpdatesVK(UpdatesVK)
   , VKLongPollConfig(key, server, tsLast)
   )
-import Adapter.VK.VKRequest (msgSendVK, urlEncodeVars)
--- import Adapter.VK.VKRequest hiding (instance MonadHttp)  -- Why this error??
+import Network.HTTP.Conduit 
+import Adapter.VK.VKRequest
 import Bot.Error
     ( Error(CannotSendMsgHelp, NotAnswer, CantConvertFromData,
             CantConvertFromArray, CannotSendMsg) )
@@ -135,25 +133,6 @@ parseValueText :: Value -> Text
 parseValueText (String a) = a
 parseValueText _ = "not parse"
 
-sendMsg :: VKMonad r m => BotMsg -> m ()
-sendMsg (BotMsg msg) = do
-  st <- asks getter 
-  let url = "api.vk.com"
-  respMaybe <-
-    liftIO $
-    msgSendVK
-      (VKUrl url)
-      (textMsg msg)
-      (accessToken (staticState st))
-      (version $ staticState st)
-      (chatId msg)
-  case respMaybe of
-    Error _ -> do
-      throwError CannotSendMsg
-    resp -> do
-      Log.writeLogD $ pack ("sendMsg VK " <> show resp)
-      return ()
-
 sendMsgHelp :: VKMonad r m => Text -> BotMsg -> m  ()
 sendMsgHelp helpMess (BotMsg msg) = do
   st <- asks getter 
@@ -175,3 +154,78 @@ sendMsgHelp helpMess (BotMsg msg) = do
 
 getNameAdapter :: VKMonad r m => m Text
 getNameAdapter = return "VK"
+
+
+sendMsg :: VKMonad r m => BotMsg -> m ()
+sendMsg (BotMsg msg) = sendTextVK (BotMsg msg)
+
+
+                                    -- REQ --
+
+
+
+sendMsgReq :: VKMonad r m => BotMsg -> m ()
+sendMsgReq (BotMsg msg) = do
+  st <- asks getter 
+  let url = "api.vk.com"
+  respMaybe <-
+    liftIO $
+    msgSendVK
+      (VKUrl url)
+      (textMsg msg)
+      (accessToken (staticState st))
+      (version $ staticState st)
+      (chatId msg)
+  case respMaybe of
+    Error _ -> do
+      throwError CannotSendMsg
+    resp -> do
+      Log.writeLogD $ pack ("sendMsg VK " <> show resp)
+      return ()
+
+
+                                    -- HTTTP Client --
+
+
+
+sendTextVK :: VKMonad r m => BotMsg -> m ()
+sendTextVK (BotMsg msg) = do
+  st <- asks getter 
+  let url = "https://api.vk.com/method/messages.send"
+  liftIO $ sendRequest
+    url
+    (buildRequestBody
+       [    ("access_token", show . takeVKToken $ accessToken (staticState st))
+          , ("v", show . takeVKVersion . version $ staticState st)
+          , ("user_id", show $ chatId msg)
+          , ("message" , unpack $ textMsg msg)
+        ]
+      --  [   ("access_token", "1e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05")
+      --     , ("v", "5.52")
+      --     , ("user_id", show $ chatId msg)
+      --     , ("message" , unpack $ textMsg msg)
+      --   ]
+        )
+
+
+                        --  Conduit --
+
+
+sendTextVK' :: VKMonad r m => BotMsg -> m ()
+sendTextVK' (BotMsg msg) = do
+  let url' = urlEncodeVars  
+        [   ("access_token", "1e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05")
+          , ("v", "5.52")
+          , ("user_id", show $ chatId msg)
+          , ("message" , unpack $ textMsg msg)
+        ]
+  let url = "https://api.vk.com/method/messages.send" ++ "?" ++ url'
+  print  url
+  _ <- simpleHttp url
+  return ()
+
+-- "https://api.vk.com/method/messages.send?access_token=VKToken%20%7BtakeVKToken%20%3D%20%221e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05%22%7D&v=VKVersion%20%7BtakeVKVersion%20%3D%205.52%7D&user_id=442266618&message=textMessage"
+--  Это работает - но не передает body - все в строке запросе
+
+
+

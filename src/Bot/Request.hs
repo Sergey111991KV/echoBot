@@ -1,35 +1,8 @@
 module Bot.Request
-  ( buildRequestBody
-  , sendRequest
-  , sendRequest'
-  , urlEncodeVars
-  ) where
+   where
 
 import ClassyPrelude
-  ( Char
-  , Enum(fromEnum, toEnum)
-  , Eq((==))
-  , Functor(fmap)
-  , IO
-  , Int
-  , Integral(div, mod)
-  , IsSequence(partition)
-  , Monad(return)
-  , Num((+), (-))
-  , Ord((<=))
-  , String
-  , (&&)
-  , (++)
-  , (.)
-  , (||)
-  , elem
-  , foldr
-  , fst
-  , map
-  , not
-  , otherwise
-  , snd
-  )
+  
 
 import Network.HTTP.Client
   ( Request(method, requestBody, requestHeaders)
@@ -40,7 +13,6 @@ import Network.HTTP.Client
   , parseRequest
   )
 import Network.HTTP.Client.TLS (tlsManagerSettings)
-
 import Data.Aeson (Value(String), encode, object)
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Char (isAlphaNum, isAscii)
@@ -94,6 +66,7 @@ buildRequest url body = do
        , requestHeaders = [(HTTP.hContentType, "application/json")]
        })
 
+
 sendRequest :: String -> LBS.ByteString -> IO ()
 sendRequest url body = do
   manager <- newManager tlsManagerSettings
@@ -106,3 +79,16 @@ sendRequest' url body = do
   manager <- newManager tlsManagerSettings
   request <- buildRequest url (RequestBodyLBS body)
   httpLbs request manager
+
+
+buildRequest' :: String -> RequestBody -> IO Request
+buildRequest' url body = do
+  nakedRequest <- parseRequest url
+  return
+    (nakedRequest
+       { method = "POST"
+       , requestBody = body
+       , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")]
+       })
+
+

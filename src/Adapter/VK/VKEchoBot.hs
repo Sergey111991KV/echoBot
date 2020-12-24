@@ -52,7 +52,12 @@ sendMsgKeyboard (BotMsg msg) = do
           (chatId msg)
       Log.writeLogD "sendMsgKeyboard VK "
       return ()
-       
+
+
+
+
+
+
 
 msgHelp :: VKMonad r m => m Text
 msgHelp = do
