@@ -35,7 +35,7 @@ import Bot.Error
  
 import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
 import qualified Log.ImportLog as Log
-
+import qualified Data.ByteString.Lazy.Char8 as L
 
 getMsgLast :: VKMonad r m => m BotMsg
 getMsgLast = do
@@ -157,7 +157,7 @@ getNameAdapter = return "VK"
 
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
-sendMsg (BotMsg msg) = sendTextVK (BotMsg msg)
+sendMsg (BotMsg msg) = sendTextVKClient2 (BotMsg msg)
 
 
                                     -- REQ --
@@ -188,8 +188,8 @@ sendMsgReq (BotMsg msg) = do
 
 
 
-sendTextVK :: VKMonad r m => BotMsg -> m ()
-sendTextVK (BotMsg msg) = do
+sendTextVKClient :: VKMonad r m => BotMsg -> m ()
+sendTextVKClient (BotMsg msg) = do
   st <- asks getter 
   let url = "https://api.vk.com/method/messages.send"
   liftIO $ sendRequest
@@ -207,12 +207,29 @@ sendTextVK (BotMsg msg) = do
       --   ]
         )
 
+sendTextVKClient2 :: VKMonad r m => BotMsg -> m ()
+sendTextVKClient2 (BotMsg msg) = do
+  st <- asks getter 
+  let url = "https://api.vk.com/method/messages.send"
+  liftIO $ sendRequest
+    url
+    (L.pack $ urlEncodeVars
+       [    ("access_token", show . takeVKToken $ accessToken (staticState st))
+          , ("v", show . takeVKVersion . version $ staticState st)
+          , ("user_id", show $ chatId msg)
+          , ("message" , unpack $ textMsg msg)
+        ]
+        )
+
+
+
+
 
                         --  Conduit --
 
 
-sendTextVK' :: VKMonad r m => BotMsg -> m ()
-sendTextVK' (BotMsg msg) = do
+sendTextVKConduit :: VKMonad r m => BotMsg -> m ()
+sendTextVKConduit (BotMsg msg) = do
   let url' = urlEncodeVars  
         [   ("access_token", "1e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05")
           , ("v", "5.52")
@@ -226,3 +243,5 @@ sendTextVK' (BotMsg msg) = do
 
 -- "https://api.vk.com/method/messages.send?access_token=VKToken%20%7BtakeVKToken%20%3D%20%221e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05%22%7D&v=VKVersion%20%7BtakeVKVersion%20%3D%205.52%7D&user_id=442266618&message=textMessage"
 --  Это работает - но не передает body - все в строке запросе
+
+
