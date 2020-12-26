@@ -11,7 +11,6 @@ jsonFile = "keyboard.json"
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
-
 data Keyboard =
   Keyboard
     { oneTime :: Bool

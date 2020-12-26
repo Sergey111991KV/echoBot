@@ -110,5 +110,8 @@ finalEchoBot = do
           liftIO (threadDelay 100000) >> finalEchoBot
         CantConvertFromArray ->  
           liftIO (threadDelay 100000) >> finalEchoBot
+        CannotRepeatCountSet ->
+          liftIO (threadDelay 100000) >> finalEchoBot 
+          -- я пока не придумал что отправлять если человек не правильно ввел count Repeat
         _ -> return ()
       

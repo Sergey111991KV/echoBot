@@ -22,14 +22,9 @@ import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Has (Has(getter))
 import Network.HTTP.Client
-    ( HttpException, Response(responseBody) )
-
-
+  
 import Adapter.Tel.TelConfig
-    ( State(staticState, dynamicState),
-      TelMonad,
-      StaticState(botUrl, token, textSendMsgTel, textMsgHelp),
-      DynamicState(waitForRepeat, repeats) )
+   
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage), telKeyb )
 import Bot.Error ( Error(HttpException) )
@@ -42,17 +37,18 @@ sendMsgKeyboard (BotMsg botMsg) = do
   let idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
   upd <-
-    liftIO . Control.Exception.catch (sendKeyboard idM url) $ \e -> do
+    liftIO . Control.Exception.catch (sendKeyboard (telManager $ staticState st) idM url) $ \e -> do
       print (e :: HttpException)
       return "wrong"
   case upd of
     "wrong" -> throwError HttpException
     _ -> return ()
 
-sendKeyboard :: Integer -> String -> IO LBS.ByteString
-sendKeyboard chatIdKeyboard sendUrl = do
+sendKeyboard :: Manager -> Integer -> String -> IO LBS.ByteString
+sendKeyboard manager chatIdKeyboard sendUrl = do
   res <-
-    sendRequest'
+    liftIO $ sendRequestWithBody'
+      manager
       sendUrl
       (encode $
        TelKeyboardPostMessage

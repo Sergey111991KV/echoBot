@@ -13,6 +13,7 @@ import ClassyPrelude
 
 import Control.Monad.Except ( MonadError )
 import Data.Has (Has)
+import Network.HTTP.Client
 
 import Log.ImportLog ( LogConfig, Log ) 
 import Bot.Error ( Error ) 
@@ -46,4 +47,5 @@ data StaticState =
     , getUpdates :: String
     , textSendMsgTel :: String
     , log :: LogConfig
-    } deriving (Show, Generic)
+    , telManager :: Manager 
+    } deriving Generic

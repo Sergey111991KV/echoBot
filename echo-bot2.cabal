@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 36ddfff91abdba804a5e444892a8e5b0e64976d96ffba2c548d93e1abc88a1ef
+-- hash: f66c0a42a1287de6b9097ce1537fa4c83996da1711f8afc6b981f49e26eb90dc
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -38,7 +38,6 @@ library
       Adapter.VK.VKEntity
       Adapter.VK.VKKeyboard
       Adapter.VK.VKMain
-      Adapter.VK.VKRequest
       Bot.Bot
       Bot.EchoBot
       Bot.Error
@@ -52,7 +51,7 @@ library
       Log.LogEntity
       Log.LogMonad
   other-modules:
-  
+      Paths_echo_bot2
   hs-source-dirs:
       src
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
@@ -69,11 +68,9 @@ library
     , hspec
     , http-client
     , http-client-tls
-    , http-conduit
     , http-types
     , mtl
     , parsec
-    , req
     , safe-exceptions
     , scientific
     , text
@@ -85,7 +82,7 @@ library
 executable echo-bot2-exe
   main-is: Main.hs
   other-modules:
-      Paths_echo_bot2
+
   hs-source-dirs:
       app
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards
@@ -103,11 +100,9 @@ executable echo-bot2-exe
     , hspec
     , http-client
     , http-client-tls
-    , http-conduit
     , http-types
     , mtl
     , parsec
-    , req
     , safe-exceptions
     , scientific
     , text
@@ -141,11 +136,9 @@ test-suite echo-bot2-test
     , hspec
     , http-client
     , http-client-tls
-    , http-conduit
     , http-types
     , mtl
     , parsec
-    , req
     , safe-exceptions
     , scientific
     , text
