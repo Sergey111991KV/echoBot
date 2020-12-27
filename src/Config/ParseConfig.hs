@@ -16,10 +16,8 @@ toPairs = do
   return (key, value)
 
 myParser :: Parsec.Parsec Text () [ConfigPair]
-myParser = (Parsec.sepBy toPairs mySeparator) <|> mySeparator
+myParser = (Parsec.sepBy toPairs mySeparator)
 
-anotherChar :: Parsec.Parsec Text () [ConfigPair]
-anotherChar 
 
 mySeparator :: Parsec.Parsec Text () ()
 mySeparator = do
