@@ -1,6 +1,6 @@
 module Config.ParseConfig where
 
-import ClassyPrelude (Alternative((<|>)), Monad(return), String, Text)
+import ClassyPrelude 
 import qualified Text.Parsec as Parsec
 
 type ConfigPair = (String, String)
@@ -16,7 +16,12 @@ toPairs = do
   return (key, value)
 
 myParser :: Parsec.Parsec Text () [ConfigPair]
-myParser = (Parsec.sepBy toPairs mySeparator)
+myParser = Parsec.many $ do
+  pair <- toPairs 
+  Parsec.eof <|> mySeparator
+  return pair
+
+
 
 
 mySeparator :: Parsec.Parsec Text () ()

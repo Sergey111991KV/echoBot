@@ -18,8 +18,8 @@ import Log.ImportLog
 import Bot.Error
 
 getPairFromFile :: Text -> Either Pars.ParseError [ConfigPair]
+-- ([ConfigPair],String)
 getPairFromFile = Pars.parse myParser ""
-
 
 telDynamicConf :: MonadError Error m => [ConfigPair] -> m  Tel.DynamicState
 telDynamicConf configPair = 

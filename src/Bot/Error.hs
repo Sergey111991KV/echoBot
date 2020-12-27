@@ -1,6 +1,6 @@
 module Bot.Error where
 
-import ClassyPrelude (Eq, Generic, Ord, Read, Show(show), Text, ($), pack)
+import ClassyPrelude
 
 data Error
   = NotAnswer
@@ -22,6 +22,7 @@ data Error
   | ErrorGetConfigRight
   | ErrorGetConfigLeft
   | HttpException
+  | ErrorParseConfig String 
   deriving (Eq, Ord, Read, Show, Generic)
 
 errorText :: Error -> Text

@@ -97,6 +97,7 @@ getConfigTel fp = do
       case parRaw of 
         Left _ -> throwError ErrorGetConfigPair
         Right configPair -> do
+        -- Right (configPair, anotherString) -> do
           dynSt <- Config.telDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.telStaticConf configPair
@@ -168,10 +169,13 @@ getConfigVK fp = do
   case (textFromFile :: Either SomeException Text) of
     Left _ -> throwError ErrorGetConfig
     Right configRaw -> do
+      print configRaw
       let parRaw = Config.getPairFromFile configRaw
       case parRaw of 
         Left _ -> throwError ErrorGetConfigPair
         Right configPair -> do
+        -- Right (configPair,anotherString) -> do
+          -- print anotherString
           dynSt <- Config.vkDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.vkStaticConf configPair
@@ -212,6 +216,7 @@ proccesInput = do
 
 startBot :: IO ()
 startBot = do
-  (_, _) <- 
-    concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
+  startVKBot "bot.config"
+  -- (_, _) <- 
+  --   concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
   print ("End" :: String )
