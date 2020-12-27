@@ -95,10 +95,8 @@ setNewTs ts = do
 parseArrays :: VKMonad r m => [Array] -> m BotMsg
 parseArrays [] = do
   throwError CantConvertFromArray
-parseArrays (x:xs) = do
-  case V.length x of
-    7 -> parseArray x
-    _ -> parseArrays xs
+parseArrays (x:xs) = 
+  if V.length x == 7 &&  (parseValueInt (x V.! 0) == 4) then parseArray x else parseArrays xs
 
 parseArray :: VKMonad r m => Array -> m BotMsg
 parseArray arr = do
