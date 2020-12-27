@@ -1,12 +1,12 @@
-module Config.Config where
+module Config.Config  where
 
 import ClassyPrelude
   
 import Control.Monad.Except ( MonadError(throwError) ) 
 import qualified Prelude as P
 import qualified Text.Parsec as Pars
-import Network.HTTP.Client
-import Network.HTTP.Client.TLS 
+import Network.HTTP.Client ( newManager )
+import Network.HTTP.Client.TLS ( tlsManagerSettings ) 
 import qualified Adapter.Tel.TelConfig as Tel
 import qualified Adapter.VK.VKConfig as VKBot
 import qualified Adapter.VK.VKEntity as VKBot
@@ -15,10 +15,10 @@ import Log.ImportLog
   ( LogConfig(LogConfig, logConsole, logFile, logLevelForFile)
   , LogWrite(Debug)
   )
-import Bot.Error
+import Bot.Error ( Error(ErrorGetConfigPair) )
 
-getPairFromFile :: Text -> Either Pars.ParseError [ConfigPair]
--- ([ConfigPair],String)
+
+getPairFromFile :: Text -> Either Pars.ParseError ([ConfigPair],String)
 getPairFromFile = Pars.parse myParser ""
 
 telDynamicConf :: MonadError Error m => [ConfigPair] -> m  Tel.DynamicState

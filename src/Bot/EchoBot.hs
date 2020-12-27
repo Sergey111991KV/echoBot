@@ -105,13 +105,12 @@ finalEchoBot = do
         NotNewMsg -> 
           liftIO (threadDelay 1000000) >> finalEchoBot
         CantConvertFromData -> 
-          liftIO (threadDelay 100000) >> finalEchoBot
+          liftIO (threadDelay 1000000) >> finalEchoBot
         CantConvertFromArray ->  
-          liftIO (threadDelay 100000) >> finalEchoBot
+          liftIO (threadDelay 1000000) >> finalEchoBot
         CannotRepeatCountSet ->
-          liftIO (threadDelay 100000) >> finalEchoBot 
+          liftIO (threadDelay 1000000) >> finalEchoBot 
         NotAnswer ->
           throwError NotAnswer
-          -- я пока не придумал что отправлять если человек не правильно ввел count Repeat
         _ -> return ()
       

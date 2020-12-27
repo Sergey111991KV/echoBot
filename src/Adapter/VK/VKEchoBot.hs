@@ -55,32 +55,15 @@ sendMsgKeyboard (BotMsg msg) =  do
           ,  ("keyboard",unpack $ decodeUtf8 (encode k))
         ]
 
-
-
--- "https://api.vk.com/method/messages.send?access_token=1e3ca5da18082a12066e5c544f0de472e2bcc8d6c774ad2a79754ecacff5bdb7573c3dd9062a6dbc8bd05&
--- v=5.52&user_id=442266618&message=%2Frepeat&keyboard=%7B%22buttons%22%3A%5B%5B%7B%22color%22%3A%22positive%22%2C%
--- 22action%22%3A%7B%22payload%22%3A%22%7B%5C%22button%5C%22%3A%20%5C%221%5C%22%7D%22%2C%22type%22%3A%22text%22%2C%
--- 2label%22%3A%221%22%7D%7D%2C%7B%22color%22%3A%22positive%22%2C%22action%22%3A%7B%22payload%22%3A%22%7B%5C%22button%
--- 5C%22%3A%20%5C%222%5C%22%7D%22%2C%22type%22%3A%22text%22%2C%22label%22%3A%222%22%7D%7D%5D%2C%5B%7B%22color%22%3A%22
--- positive%22%2C%22action%22%3A%7B%22payload%22%3A%22%7B%5C%22button%5C%22%3A%20%5C%223%5C%22%7D%22%2C%22type%22%3A%22text%
--- 22%2C%22label%22%3A%223%22%7D%7D%2C%7B%22color%22%3A%22positive%22%2C%22action%22%3A%7B%22payload%22%3A%22%7B%5C%22button%5
--- C%22%3A%20%5C%224%5C%22%7D%22%2C%22type%22%3A%22text%22%2C%22label%22%3A%224%22%7D%7D%2C%7B%22color%22%3A%22positive%22%2C%22a
--- ction%22%3A%7B%22payload%22%3A%22%7B%5C%22button%5C%22%3A%20%5C%225%5C%22%7D%22%2C%22type%22%3A%22text%22%2C%22label%22%3A%225%
--- 22%7D%7D%5D%5D%2C%22inline%22%3Atrue%2C%22one_time%22%3Afalse%7D" - это запрос клавиатуры - я думаю это не нормально
-
-
-
 msgHelp :: VKMonad r m => m Text
 msgHelp = do
   st <- asks getter 
-  -- Log.writeLogD "msgHelp VK "
   return . helpMsg $  staticState st
 
 countRepeat :: VKMonad r m => m Integer
 countRepeat = do
   st <- asks getter 
   dynSt <- readTVarIO $ dynamicState st 
-  -- Log.writeLogD "countRepeat VK "
   return $ repeats dynSt
 
 
