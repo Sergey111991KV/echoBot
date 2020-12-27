@@ -24,9 +24,7 @@ import Bot.Message (BotCompatibleMessage(textMsg), BotMsg(..))
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
-    ( errorText,
-      Error(CantConvertFromArray, CannotRepeatCountSet,
-            CannotRepeatFalseNumber, NotNewMsg, CantConvertFromData) )
+   
    
 
 class (Bot m ,MonadError Error m )=>
@@ -105,13 +103,15 @@ finalEchoBot = do
       writeLogE $ errorText err <> nameA
       case err of
         NotNewMsg -> 
-          liftIO (threadDelay 100000) >> finalEchoBot
+          liftIO (threadDelay 1000000) >> finalEchoBot
         CantConvertFromData -> 
           liftIO (threadDelay 100000) >> finalEchoBot
         CantConvertFromArray ->  
           liftIO (threadDelay 100000) >> finalEchoBot
         CannotRepeatCountSet ->
           liftIO (threadDelay 100000) >> finalEchoBot 
+        NotAnswer ->
+          throwError NotAnswer
           -- я пока не придумал что отправлять если человек не правильно ввел count Repeat
         _ -> return ()
       

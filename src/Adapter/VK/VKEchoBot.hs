@@ -1,11 +1,26 @@
 module Adapter.VK.VKEchoBot where
 
 import ClassyPrelude
+    ( ($),
+      Monad(return),
+      Show(show),
+      Bool,
+      Integer,
+      Maybe(..),
+      Text,
+      MonadIO(liftIO),
+      (.),
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO,
+      Utf8(decodeUtf8) )
 
 import Control.Monad.Except
     (  MonadError(throwError) )  
 import Data.Has (Has(getter))
-import Data.Aeson
+import Data.Aeson ( decode, encode )
 
 
 import Bot.Error ( Error(CannotSendKeyboard) ) 

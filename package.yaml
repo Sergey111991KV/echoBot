@@ -57,6 +57,9 @@ default-extensions:
 
 
 library:
+  when:
+  - condition: false
+    other-modules: Paths_echo_bot2
   ghc-options:
     - -Wall
     - -Werror
