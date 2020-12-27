@@ -62,10 +62,7 @@ buildRequestWithBody url body = do
 
 
 sendRequestWithBody :: Manager -> String -> LBS.ByteString -> IO ()
-sendRequestWithBody manager url body = do
-  request <- buildRequestWithBody url (RequestBodyLBS body)
-  _ <- httpLbs request manager
-  return ()
+sendRequestWithBody manager url body = void $ sendRequestWithBody'  manager url body
 
 sendRequestWithBody' ::  Manager ->  String -> LBS.ByteString -> IO (Response LBS.ByteString)
 sendRequestWithBody' manager url body = do
