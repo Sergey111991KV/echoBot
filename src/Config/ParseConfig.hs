@@ -16,21 +16,16 @@ toPairs = do
     helpText
   return (key, value)
 
-myParserPair :: Parsec.Parsec Text () [ConfigPair]
-myParserPair = Parsec.many1 $ do
+toPairArray :: Parsec.Parsec Text () [ConfigPair]
+toPairArray = Parsec.many1 $ do
   pair <- toPairs 
   Parsec.eof <|> mySeparator
   return pair
 
 
-myParser :: Parsec.Parsec Text () ([ConfigPair],String)
-myParser = do
-  pair <- myParserPair
-  othetText <- Parsec.many1 (Parsec.letter <|> Parsec.digit <|> Parsec.space) <|> defText
-  return (pair,othetText)
-
 defText :: Parsec.Parsec Text () String 
 defText = return []
+
 
 mySeparator :: Parsec.Parsec Text () ()
 mySeparator = do
@@ -43,3 +38,9 @@ helpText = do
   value <- Parsec.many1 (Parsec.letter <|> Parsec.digit <|> Parsec.space)
   _ <- Parsec.char '"'
   return value
+
+myParser :: Parsec.Parsec Text () ([ConfigPair],String)
+myParser = do
+  pair <- toPairArray 
+  othetText <- Parsec.many1 (Parsec.letter <|> Parsec.digit <|> Parsec.space) <|> defText
+  return (pair,othetText)

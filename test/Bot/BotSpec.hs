@@ -8,7 +8,6 @@ import Fixture
 import Log.ImportLog
 import Test.Hspec
 import Control.Monad.Except
--- import Control.Monad.Error.Class
 
 data Fixture m =
   Fixture
@@ -42,7 +41,7 @@ logConfTest =
     , logLevelForFile = Debug
     , logConsole = True
     }
--- instance MonadError IOException IO
+
 
 instance Log App where
   writeLog l txt = do

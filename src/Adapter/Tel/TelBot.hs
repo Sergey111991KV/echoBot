@@ -38,7 +38,7 @@ import Adapter.Tel.TelEntity
 import Bot.Error
     ( Error(CannotSendMsgHelp, NotAnswer, NotNewMsg, CannotSendMsg) ) 
 import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
-import Bot.Request ( sendRequestWithBody, buildBody ) 
+import Bot.Request ( sendRequestWithJsonBody, buildBody ) 
 
 
 getNameAdapter :: TelMonad r m => m Text
@@ -90,7 +90,6 @@ sendMsg (BotMsg botMsg) = do
       idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
   sendText txtOfMsg idM url `catchError`  (\_ -> do
-      -- print (e :: HttpException) -- this maybe be helpful
       throwError CannotSendMsg )
 
 sendMsgHelp :: TelMonad r m => Text -> BotMsg -> m  ()
@@ -105,7 +104,7 @@ sendMsgHelp helpText (BotMsg botMsg) = do
 sendText :: TelMonad r m => Text -> Integer -> String -> m ()
 sendText txtOfMsg chatIdSendMsg sendUrl = do
   st <- asks getter
-  liftIO $ sendRequestWithBody
+  liftIO $ sendRequestWithJsonBody
     (telManager $ staticState st)
     sendUrl
     (buildBody

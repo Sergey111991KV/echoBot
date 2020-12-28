@@ -1,6 +1,7 @@
 module Bot.Error where
 
 import ClassyPrelude
+    ( ($), Eq, Ord, Read, Show(show), Generic, String, Text, pack )
 
 data Error
   = NotAnswer

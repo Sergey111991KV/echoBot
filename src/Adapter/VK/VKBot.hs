@@ -13,12 +13,12 @@ import ClassyPrelude
       MonadIO(liftIO),
       (.),
       (&&),
-      print,
       unpack,
       asks,
       swapTVar,
       atomically,
       readTVarIO )
+    
 import Network.HTTP.Client
     ( httpLbs, parseRequest, Response(responseBody) ) 
 import Data.Aeson ( eitherDecode, Array, Value(String, Number) )
@@ -99,7 +99,6 @@ caseOfGetMsg ::
   => Response Data.ByteString.Lazy.Internal.ByteString
   -> m BotMsg
 caseOfGetMsg responseGetMsg = do
-  print responseGetMsg
   let upd =
         eitherDecode $ responseBody responseGetMsg :: Either String UpdatesVK
   case upd of

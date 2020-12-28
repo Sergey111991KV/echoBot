@@ -35,7 +35,7 @@ import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage), telKeyb )
 import Bot.Error ( Error(HttpException) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
-import Bot.Request ( sendRequestWithBody' )
+import Bot.Request ( sendRequestWithJsonBody' )
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg botMsg) = do
@@ -53,7 +53,7 @@ sendMsgKeyboard (BotMsg botMsg) = do
 sendKeyboard :: Manager -> Integer -> String -> IO LBS.ByteString
 sendKeyboard manager chatIdKeyboard sendUrl = do
   res <-
-    liftIO $ sendRequestWithBody'
+    liftIO $ sendRequestWithJsonBody'
       manager
       sendUrl
       (encode $

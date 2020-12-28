@@ -2,9 +2,40 @@ module Bot.Request
    where
 
 import ClassyPrelude
+    ( fst,
+      snd,
+      otherwise,
+      ($),
+      Enum(fromEnum, toEnum),
+      Eq((==)),
+      Integral(div, mod),
+      Monad(return),
+      Functor(fmap),
+      Num((+), (-)),
+      Ord((<=)),
+      Char,
+      Int,
+      IO,
+      String,
+      (.),
+      void,
+      (&&),
+      (||),
+      not,
+      (++),
+      map,
+      elem,
+      foldr,
+      IsSequence(partition) )
   
 
 import Network.HTTP.Client
+    ( httpLbs,
+      parseRequest,
+      Manager,
+      Request(requestBody, method, requestHeaders),
+      RequestBody(RequestBodyLBS),
+      Response )
   
 import Data.Aeson (Value(String), encode, object)
 import qualified Data.ByteString.Lazy.Internal as LBS
@@ -61,29 +92,23 @@ buildRequestWithBody url body = do
        })
 
 
-sendRequestWithBody :: Manager -> String -> LBS.ByteString -> IO ()
-sendRequestWithBody manager url body = void $ sendRequestWithBody'  manager url body
+sendRequestWithJsonBody :: Manager -> String -> LBS.ByteString -> IO ()
+sendRequestWithJsonBody manager url body = void $ sendRequestWithJsonBody'  manager url body
 
-sendRequestWithBody' ::  Manager ->  String -> LBS.ByteString -> IO (Response LBS.ByteString)
-sendRequestWithBody' manager url body = do
+sendRequestWithJsonBody' ::  Manager ->  String -> LBS.ByteString -> IO (Response LBS.ByteString)
+sendRequestWithJsonBody' manager url body = do
   request <- buildRequestWithBody url (RequestBodyLBS body)
   httpLbs request manager
-
-
 
 
 sendRequestUrl ::  Manager -> String -> [(String, String)]  -> IO ()
 sendRequestUrl manager url urlEncArray = do
   let optionUrl = urlEncodeVars urlEncArray
   let mainUrl = url ++ "?" ++ optionUrl
-  print mainUrl
   initReq <- parseRequest mainUrl
   let req = initReq
             { method = "POST"
-            , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] -- Is it need? Or need to create some another parametrs?
-                                                                                          -- or another method?
-                                                                                          -- addToRequestQueryString :: Query -> Request -> Request
-                                                                                          -- setRequestBodyURLEncoded :: [(ByteString, ByteString)] -> Request -> Request
+            , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
             }
   _ <- httpLbs req manager
   return ()

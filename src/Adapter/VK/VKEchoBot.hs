@@ -31,10 +31,11 @@ import Adapter.VK.VKKeyboard ( getJSON, Keyboard )
 import Adapter.VK.VKConfig
     ( DynamicState(waitForRepeat, repeats),
       State(staticState, dynamicState),
-      StaticState(vkManager, accessToken, version, helpMsg),
+      StaticState(vkManager, sendMsgUrl, accessToken, version, helpMsg),
       VKMonad,
       VKToken(takeVKToken),
       VKVersion(takeVKVersion) )
+    
 
 
 sendMsgKeyboard :: VKMonad r m => BotMsg -> m ()
@@ -46,8 +47,7 @@ sendMsgKeyboard (BotMsg msg) =  do
     Nothing -> do
       throwError CannotSendKeyboard
     Just k  -> do
-      let url = "https://api.vk.com/method/messages.send"
-      liftIO $ sendRequestUrl (vkManager $ staticState st) url
+      liftIO $ sendRequestUrl (vkManager $ staticState st) (sendMsgUrl $ staticState st)
        [    ("access_token", takeVKToken $ accessToken (staticState st))
           , ("v", show . takeVKVersion . version $ staticState st)
           , ("user_id", show $ chatId msg)
