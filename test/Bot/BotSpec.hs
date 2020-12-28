@@ -8,10 +8,6 @@ import Fixture
 import Log.ImportLog
 import Test.Hspec
 import Control.Monad.Except
-<<<<<<< HEAD
--- import Control.Monad.Error.Class
-=======
->>>>>>> master2
 
 data Fixture m =
   Fixture
@@ -45,11 +41,6 @@ logConfTest =
     , logLevelForFile = Debug
     , logConsole = True
     }
-<<<<<<< HEAD
--- instance MonadError IOException IO
-=======
-
->>>>>>> master2
 
 instance Log App where
   writeLog l txt = do
@@ -101,17 +92,6 @@ spec = do
               }
       runApp fixture (sendMsg (BotMsg (EmptyMessage "" 0 0))) `shouldReturn`
           Right ()
-<<<<<<< HEAD
-    it "should not send message " $ do
-      let fixture =
-            emptyFixture
-              { _sendMsg = \_ -> do 
-                return  NotAnswer
-                --  throwError NotAnswer
-              }
-      runApp fixture (sendMsg (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-        Left EmptyAnswer
-=======
     -- it "should not send message " $ do
     --   let fixture =
     --         emptyFixture
@@ -121,7 +101,6 @@ spec = do
     --           }
     --   runApp fixture (sendMsg (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
     --     Left EmptyAnswer
->>>>>>> master2
   describe "sendMsgHelp message" $ do
     let m = BotMsg (EmptyMessage "" 0 0)
     it "should send help message " $ do
@@ -131,18 +110,6 @@ spec = do
               }
       runApp fixture (sendMsgHelp "Test" (BotMsg (EmptyMessage "" 0 0))) `shouldReturn`
            Right ()
-<<<<<<< HEAD
-    it "should not send help message " $ do
-      let fixture =
-            emptyFixture
-              { _sendHelpMsg = \_ _ -> 
-                -- throwError NotAnswer
-                return  ()
-                -- throwError NotAnswer
-              }
-      runApp fixture (sendMsgHelp "Test" (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-         Left NotAnswer
-=======
     -- it "should not send help message " $ do
     --   let fixture =
     --         emptyFixture
@@ -153,4 +120,3 @@ spec = do
     --           }
     --   runApp fixture (sendMsgHelp "Test" (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
     --      Left NotAnswer
->>>>>>> master2

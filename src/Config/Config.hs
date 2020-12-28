@@ -98,12 +98,8 @@ telStaticConf configPair =
                    , logLevelForFile = Debug
                    , logConsole = True
                    }
-<<<<<<< HEAD
-    }
-=======
     , Tel.telManager =  manager
       }
->>>>>>> master2
   
 vkDynamicConf ::  MonadError Error m =>  [ConfigPair] -> m VKBot.DynamicState
 vkDynamicConf  configPair = 
@@ -119,11 +115,7 @@ vkDynamicConf  configPair =
                        P.read $ fromMaybe "3" (lookup "RepeatCount" configPair)
                    }
 
-<<<<<<< HEAD
-vkStaticConf ::  MonadError Error m =>  [ConfigPair] ->  m  VKBot.StaticState
-=======
 vkStaticConf ::  (MonadIO m, MonadError Error m) =>  [ConfigPair] ->  m  VKBot.StaticState
->>>>>>> master2
 vkStaticConf  configPair = 
    if   lookup "VKtoken" configPair == Nothing || 
         lookup "msgHelp" configPair == Nothing

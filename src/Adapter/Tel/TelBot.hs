@@ -13,32 +13,12 @@ import ClassyPrelude
       Text,
       MonadIO(liftIO),
       (.),
-<<<<<<< HEAD
-      print,
-=======
->>>>>>> master2
       unpack,
       asks,
       swapTVar,
       atomically,
       readTVarIO )
   
-<<<<<<< HEAD
-import Control.Exception (catch)
-import Data.Aeson (eitherDecode)
-import Data.Has (Has(getter))
-import Network.HTTP.Conduit (HttpException, simpleHttp)
-import Control.Monad.Except
-    ( MonadError(catchError, throwError) )
-    
-import Adapter.Tel.TelConfig
-    ( State(dynamicState, staticState),
-      TelMonad,
-      StaticState(getUpdates, botUrl, token, textSendMsgTel),
-      DynamicState(lastMsgId) )
- 
-
-=======
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
 import Control.Monad.Except
@@ -51,7 +31,6 @@ import Adapter.Tel.TelConfig
       State(dynamicState, staticState),
       StaticState(getUpdates, botUrl, token, textSendMsgTel, telManager),
       TelMonad )
->>>>>>> master2
 import Adapter.Tel.TelEntity
   ( TelUpdate(updateId, updateMsg)
   , TelUpdates(result)
@@ -59,12 +38,8 @@ import Adapter.Tel.TelEntity
 import Bot.Error
     ( Error(CannotSendMsgHelp, NotAnswer, NotNewMsg, CannotSendMsg) ) 
 import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
-<<<<<<< HEAD
-import Bot.Request (buildRequestBody, sendRequest)
-=======
 import Bot.Request ( sendRequestWithJsonBody, buildBody ) 
 
->>>>>>> master2
 
 getNameAdapter :: TelMonad r m => m Text
 getNameAdapter = return "Telegram"
@@ -74,17 +49,9 @@ getMsgLast = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> getUpdates (staticState st)
-<<<<<<< HEAD
-  upd <-
-    liftIO . Control.Exception.catch (simpleHttp url) $ \e -> do
-      print (e :: HttpException)
-      return "HttpException"
-  let updT = eitherDecode upd :: Either String TelUpdates
-=======
   request <- liftIO $ parseRequest url
   responseLastMsg <- liftIO $ httpLbs request (telManager $ staticState st)
   let updT = eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
->>>>>>> master2
   (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT
   let newIdMsg = idMsg msg
   if newIdMsg == lastMsgId dynSt
@@ -94,10 +61,6 @@ getMsgLast = do
       _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
       return (BotMsg msg)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> master2
 processUpdates :: TelMonad r m => Integer -> Either String TelUpdates -> m BotMsg
 processUpdates idStateMsg eitherUpdates = do
   case eitherUpdates of

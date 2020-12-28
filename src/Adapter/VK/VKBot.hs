@@ -149,10 +149,6 @@ caseOfGetMsg ::
   => Response Data.ByteString.Lazy.Internal.ByteString
   -> m BotMsg
 caseOfGetMsg responseGetMsg = do
-<<<<<<< HEAD
-  print responseGetMsg
-=======
->>>>>>> master2
   let upd =
         eitherDecode $ responseBody responseGetMsg :: Either String UpdatesVK
   case upd of
@@ -173,15 +169,8 @@ setNewTs ts = do
 parseArrays :: VKMonad r m => [Array] -> m BotMsg
 parseArrays [] = do
   throwError CantConvertFromArray
-<<<<<<< HEAD
-parseArrays (x:xs) = do
-  case V.length x of
-    7 -> parseArray x
-    _ -> parseArrays xs
-=======
 parseArrays (x:xs) = 
   if V.length x == 7 &&  (parseValueInt (x V.! 0) == 4) then parseArray x else parseArrays xs
->>>>>>> master2
 
 parseArray :: VKMonad r m => Array -> m BotMsg
 parseArray arr = do
@@ -203,25 +192,6 @@ parseValueText (String a) = a
 parseValueText _ = "not parse"
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
-<<<<<<< HEAD
-sendMsg (BotMsg msg) = do
-  st <- asks getter 
-  let url = "api.vk.com"
-  respMaybe <-
-    liftIO $
-    msgSendVK
-      (VKUrl url)
-      (textMsg msg)
-      (accessToken (staticState st))
-      (version $ staticState st)
-      (chatId msg)
-  case respMaybe of
-    Error _ -> do
-      throwError CannotSendMsg
-    resp -> do
-      Log.writeLogD $ pack ("sendMsg VK " <> show resp)
-      return ()
-=======
 sendMsg (BotMsg msg) =  do
   st <- asks getter 
   liftIO $ sendRequestUrl
@@ -232,31 +202,10 @@ sendMsg (BotMsg msg) =  do
           , ("user_id", show $ chatId msg)
           , ("message" , unpack $ textMsg msg)
         ]
->>>>>>> master2
 
 sendMsgHelp :: VKMonad r m => Text -> BotMsg -> m  ()
 sendMsgHelp helpMess (BotMsg msg) = do
   st <- asks getter 
-<<<<<<< HEAD
-  let url = "api.vk.com"
-  respMaybe <-
-    liftIO $
-    msgSendVK
-      (VKUrl url)
-      helpMess
-      (accessToken (staticState st))
-      (version $ staticState st)
-      (chatId msg)
-  case respMaybe of
-    Error _ -> do
-      throwError CannotSendMsgHelp
-    resp -> do
-      Log.writeLogD $ pack ("sendMsg VK " <> show resp)
-      return  ()
-
-getNameAdapter :: VKMonad r m => m Text
-getNameAdapter = return "VK"
-=======
   liftIO $ sendRequestUrl
     (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)
@@ -271,4 +220,3 @@ getNameAdapter = return "VK"
 
 
     
->>>>>>> master2

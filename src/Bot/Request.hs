@@ -1,48 +1,4 @@
 module Bot.Request
-<<<<<<< HEAD
-  ( buildRequestBody
-  , sendRequest
-  , sendRequest'
-  , urlEncodeVars
-  ) where
-
-import ClassyPrelude
-  ( Char
-  , Enum(fromEnum, toEnum)
-  , Eq((==))
-  , Functor(fmap)
-  , IO
-  , Int
-  , Integral(div, mod)
-  , IsSequence(partition)
-  , Monad(return)
-  , Num((+), (-))
-  , Ord((<=))
-  , String
-  , (&&)
-  , (++)
-  , (.)
-  , (||)
-  , elem
-  , foldr
-  , fst
-  , map
-  , not
-  , otherwise
-  , snd
-  )
-
-import Network.HTTP.Client
-  ( Request(method, requestBody, requestHeaders)
-  , RequestBody(RequestBodyLBS)
-  , Response
-  , httpLbs
-  , newManager
-  , parseRequest
-  )
-import Network.HTTP.Client.TLS (tlsManagerSettings)
-
-=======
    where
 
 import ClassyPrelude
@@ -81,7 +37,6 @@ import Network.HTTP.Client
       RequestBody(RequestBodyLBS),
       Response )
   
->>>>>>> master2
 import Data.Aeson (Value(String), encode, object)
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Char (isAlphaNum, isAscii)
@@ -121,14 +76,6 @@ urlEncodeVars ((n, v):t) =
     urlEncodeRest diff = '&' : urlEncodeVars diff
 urlEncodeVars [] = []
 
-<<<<<<< HEAD
-buildRequestBody :: [(String, String)] -> LBS.ByteString
-buildRequestBody =
-  encode . object . fmap (\(a, b) -> (T.pack a, String (T.pack b)))
-
-buildRequest :: String -> RequestBody -> IO Request
-buildRequest url body = do
-=======
 buildBody :: [(String, String)] -> LBS.ByteString
 buildBody =
   encode . object . fmap (\(a, b) -> (T.pack a, String (T.pack b)))
@@ -136,7 +83,6 @@ buildBody =
 
 buildRequestWithBody :: String -> RequestBody -> IO Request
 buildRequestWithBody url body = do
->>>>>>> master2
   nakedRequest <- parseRequest url
   return
     (nakedRequest
@@ -145,20 +91,6 @@ buildRequestWithBody url body = do
        , requestHeaders = [(HTTP.hContentType, "application/json")]
        })
 
-<<<<<<< HEAD
-sendRequest :: String -> LBS.ByteString -> IO ()
-sendRequest url body = do
-  manager <- newManager tlsManagerSettings
-  request <- buildRequest url (RequestBodyLBS body)
-  _ <- httpLbs request manager
-  return ()
-
-sendRequest' :: String -> LBS.ByteString -> IO (Response LBS.ByteString)
-sendRequest' url body = do
-  manager <- newManager tlsManagerSettings
-  request <- buildRequest url (RequestBodyLBS body)
-  httpLbs request manager
-=======
 
 sendRequestWithJsonBody :: Manager -> String -> LBS.ByteString -> IO ()
 sendRequestWithJsonBody manager url body = void $ sendRequestWithJsonBody'  manager url body
@@ -181,4 +113,3 @@ sendRequestUrl manager url urlEncArray = do
   _ <- httpLbs req manager
   return ()
 
->>>>>>> master2
