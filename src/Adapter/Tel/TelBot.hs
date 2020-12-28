@@ -13,27 +13,24 @@ import ClassyPrelude
       Text,
       MonadIO(liftIO),
       (.),
-      print,
       unpack,
       asks,
       swapTVar,
       atomically,
       readTVarIO )
   
-import Control.Exception (catch)
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
-import Network.HTTP.Conduit (HttpException, simpleHttp)
 import Control.Monad.Except
     ( MonadError(catchError, throwError) )
-    
-import Adapter.Tel.TelConfig
-    ( State(dynamicState, staticState),
-      TelMonad,
-      StaticState(getUpdates, botUrl, token, textSendMsgTel),
-      DynamicState(lastMsgId) )
- 
+import Network.HTTP.Client
+    ( httpLbs, parseRequest, Response(responseBody) ) 
 
+import Adapter.Tel.TelConfig
+    ( DynamicState(lastMsgId),
+      State(dynamicState, staticState),
+      StaticState(getUpdates, botUrl, token, textSendMsgTel, telManager),
+      TelMonad )
 import Adapter.Tel.TelEntity
   ( TelUpdate(updateId, updateMsg)
   , TelUpdates(result)
@@ -41,7 +38,8 @@ import Adapter.Tel.TelEntity
 import Bot.Error
     ( Error(CannotSendMsgHelp, NotAnswer, NotNewMsg, CannotSendMsg) ) 
 import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
-import Bot.Request (buildRequestBody, sendRequest)
+import Bot.Request ( sendRequestWithJsonBody, buildBody ) 
+
 
 getNameAdapter :: TelMonad r m => m Text
 getNameAdapter = return "Telegram"
@@ -51,11 +49,9 @@ getMsgLast = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> getUpdates (staticState st)
-  upd <-
-    liftIO . Control.Exception.catch (simpleHttp url) $ \e -> do
-      print (e :: HttpException)
-      return "HttpException"
-  let updT = eitherDecode upd :: Either String TelUpdates
+  request <- liftIO $ parseRequest url
+  responseLastMsg <- liftIO $ httpLbs request (telManager $ staticState st)
+  let updT = eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
   (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT
   let newIdMsg = idMsg msg
   if newIdMsg == lastMsgId dynSt
@@ -64,6 +60,7 @@ getMsgLast = do
       let newState = dynSt {lastMsgId = newIdMsg}
       _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
       return (BotMsg msg)
+
 
 processUpdates :: TelMonad r m => Integer -> Either String TelUpdates -> m BotMsg
 processUpdates idStateMsg eitherUpdates = do
@@ -93,7 +90,6 @@ sendMsg (BotMsg botMsg) = do
       idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
   sendText txtOfMsg idM url `catchError`  (\_ -> do
-      -- print (e :: HttpException) -- this maybe be helpful
       throwError CannotSendMsg )
 
 sendMsgHelp :: TelMonad r m => Text -> BotMsg -> m  ()
@@ -106,8 +102,10 @@ sendMsgHelp helpText (BotMsg botMsg) = do
   
 
 sendText :: TelMonad r m => Text -> Integer -> String -> m ()
-sendText txtOfMsg chatIdSendMsg sendUrl =
-  liftIO $ sendRequest
+sendText txtOfMsg chatIdSendMsg sendUrl = do
+  st <- asks getter
+  liftIO $ sendRequestWithJsonBody
+    (telManager $ staticState st)
     sendUrl
-    (buildRequestBody
+    (buildBody
        [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])

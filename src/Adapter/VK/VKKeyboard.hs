@@ -1,7 +1,22 @@
 module Adapter.VK.VKKeyboard where
 
 import ClassyPrelude
+    ( Show,
+      Applicative((<*>)),
+      Generic,
+      Bool,
+      IO,
+      FilePath,
+      (<$>),
+      MonadPlus(mzero) )
 import Data.Aeson
+    ( (.:),
+      object,
+      FromJSON(parseJSON),
+      Array,
+      Value(Object),
+      KeyValue((.=)),
+      ToJSON(toJSON) )
 import qualified Data.ByteString.Lazy as B
 
 
@@ -10,7 +25,6 @@ jsonFile = "keyboard.json"
 
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
-
 
 data Keyboard =
   Keyboard

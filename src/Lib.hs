@@ -21,14 +21,16 @@ import ClassyPrelude
       Bool(..),
       IO,
       Either(..),
-      String,
-      (.),
-      SomeException,
-      MonadIO(..),
       FilePath,
+      String,
       Text,
+      MonadIO(..),
+      SomeException,
+      (.),
+      unless,
       getLine,
       print,
+      null,
       asks,
       getCurrentTime,
       try,
@@ -36,11 +38,13 @@ import ClassyPrelude
       newTVarIO,
       MonadReader,
       ReaderT(..) )
+    
    
- 
 import Data.Has (Has(getter))
 import Bot.Error
-    ( Error(ErrorGetConfigPair, ErrorGetConfig), errorText ) 
+    ( errorText,
+      Error(ErrorParseConfig, ErrorGetConfig, ErrorGetConfigPair) )
+   
 import qualified Config.Config as Config
 import qualified Data.Text.IO as TIO
 import Log.ImportLog (Log(..), LogWrite(Debug, Error, Warning), writeLogHandler)
@@ -96,7 +100,10 @@ getConfigTel fp = do
       let parRaw = Config.getPairFromFile configRaw
       case parRaw of 
         Left _ -> throwError ErrorGetConfigPair
-        Right configPair -> do
+        Right ([], anotherString) -> do
+          throwError $ ErrorParseConfig anotherString
+        Right (configPair, anotherString) -> do
+          unless  (null anotherString) . print $ ("This string has not been parsed:  " <> anotherString)
           dynSt <- Config.telDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.telStaticConf configPair
@@ -168,10 +175,14 @@ getConfigVK fp = do
   case (textFromFile :: Either SomeException Text) of
     Left _ -> throwError ErrorGetConfig
     Right configRaw -> do
+      print configRaw
       let parRaw = Config.getPairFromFile configRaw
       case parRaw of 
         Left _ -> throwError ErrorGetConfigPair
-        Right configPair -> do
+        Right ([], anotherString) -> do
+          throwError $ ErrorParseConfig anotherString
+        Right (configPair,anotherString) -> do
+          unless  (null anotherString) . print $ ("This string has not been parsed:  " <> anotherString)
           dynSt <- Config.vkDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.vkStaticConf configPair
@@ -212,7 +223,6 @@ proccesInput = do
 
 startBot :: IO ()
 startBot = do
-  (startVKBot "bot.config")
-  -- (_, _) <- 
-  --   concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
+  (_, _) <- 
+    concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
   print ("End" :: String )

@@ -28,7 +28,6 @@ dependencies:
 - data-has
 - text
 - bytestring
-- http-conduit
 - http-client
 - http-client-tls
 - http-types
@@ -39,7 +38,6 @@ dependencies:
 - time
 - text-time
 - hspec
-- req
 - parsec
 - safe-exceptions
 
@@ -59,6 +57,9 @@ default-extensions:
 
 
 library:
+  when:
+  - condition: false
+    other-modules: Paths_echo_bot2
   ghc-options:
     - -Wall
     - -Werror

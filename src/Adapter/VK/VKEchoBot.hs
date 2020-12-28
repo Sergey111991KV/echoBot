@@ -3,37 +3,43 @@ module Adapter.VK.VKEchoBot where
 import ClassyPrelude
     ( ($),
       Monad(return),
+      Show(show),
       Bool,
       Integer,
-      Maybe(Just, Nothing),
+      Maybe(..),
       Text,
-      MonadIO(..),
+      MonadIO(liftIO),
       (.),
+      unpack,
       asks,
       swapTVar,
       atomically,
-      readTVarIO )
+      readTVarIO,
+      Utf8(decodeUtf8) )
+
 import Control.Monad.Except
     (  MonadError(throwError) )  
 import Data.Has (Has(getter))
-import Adapter.VK.VKKeyboard 
-import Adapter.VK.VKConfig
-    ( VKUrl(VKUrl),
-      VKToken(takeVKToken),
-      State(staticState, dynamicState),
-      VKMonad,
-      StaticState(accessToken, version, helpMsg),
-      DynamicState(waitForRepeat, repeats) )
-import qualified Log.ImportLog as Log
--- import Adapter.VK.VKRequest (getKeyButtons, sendVKKeyboard)
-import Adapter.VK.VKRequest  
+import Data.Aeson ( decode, encode )
+
+
 import Bot.Error ( Error(CannotSendKeyboard) ) 
-import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
-import Data.Aeson
+import Bot.Message
+    ( BotCompatibleMessage(textMsg, chatId), BotMsg(..) )
+import Bot.Request ( sendRequestUrl ) 
+import Adapter.VK.VKKeyboard ( getJSON, Keyboard ) 
+import Adapter.VK.VKConfig
+    ( DynamicState(waitForRepeat, repeats),
+      State(staticState, dynamicState),
+      StaticState(vkManager, sendMsgUrl, accessToken, version, helpMsg),
+      VKMonad,
+      VKToken(takeVKToken),
+      VKVersion(takeVKVersion) )
+    
 
 
-sendMsgKeyboard :: (MonadIO m, VKMonad r m) => BotMsg -> m ()
-sendMsgKeyboard (BotMsg msg) = do
+sendMsgKeyboard :: VKMonad r m => BotMsg -> m ()
+sendMsgKeyboard (BotMsg msg) =  do
   st <- asks getter 
   keyKeyboard <- liftIO  getJSON
   let keyboardMaybe =  (decode keyKeyboard :: Maybe Keyboard)
@@ -41,35 +47,23 @@ sendMsgKeyboard (BotMsg msg) = do
     Nothing -> do
       throwError CannotSendKeyboard
     Just k  -> do
-      let url = "api.vk.com"
-      _ <-
-        liftIO $
-        sendVKKeyboard
-          (VKUrl url)
-          k
-          (takeVKToken . accessToken $ staticState st)
-          (version $ staticState st)
-          (chatId msg)
-      Log.writeLogD "sendMsgKeyboard VK "
-      return ()
-
-
-
-
-
-
+      liftIO $ sendRequestUrl (vkManager $ staticState st) (sendMsgUrl $ staticState st)
+       [    ("access_token", takeVKToken $ accessToken (staticState st))
+          , ("v", show . takeVKVersion . version $ staticState st)
+          , ("user_id", show $ chatId msg)
+          , ("message" , unpack $ textMsg msg)
+          ,  ("keyboard",unpack $ decodeUtf8 (encode k))
+        ]
 
 msgHelp :: VKMonad r m => m Text
 msgHelp = do
   st <- asks getter 
-  -- Log.writeLogD "msgHelp VK "
   return . helpMsg $  staticState st
 
 countRepeat :: VKMonad r m => m Integer
 countRepeat = do
   st <- asks getter 
   dynSt <- readTVarIO $ dynamicState st 
-  -- Log.writeLogD "countRepeat VK "
   return $ repeats dynSt
 
 

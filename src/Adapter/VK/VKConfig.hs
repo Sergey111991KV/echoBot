@@ -16,6 +16,7 @@ import ClassyPrelude
 import Data.Aeson (FromJSON)
 import Data.Has (Has)
 import Control.Monad.Except ( MonadError )
+import Network.HTTP.Client ( Manager )
 
 import Bot.Error ( Error )
 import Log.ImportLog (Log, LogConfig)
@@ -51,8 +52,9 @@ data StaticState =
     , getUpdatesUrl :: String
     , sendMsgUrl :: String
     , log :: LogConfig
+    , vkManager :: Manager 
     }
-  deriving (Show, Generic)
+  deriving Generic
 
 newtype VKToken =
   VKToken

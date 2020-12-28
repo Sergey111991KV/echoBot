@@ -108,15 +108,15 @@ spec = do
               }
       runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
         Right ()
-    it "should not send EchoMessage for countRepeat" $ do
-      let fixture =
-            emptyFixture
-              { _repeatsCount = return 1
-              , _sendMsg = \_ -> return ()
-              , _nameAdapter = return "Test"
-              }
-      runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-        Left EmptyAnswer
+    -- it "should not send EchoMessage for countRepeat" $ do
+    --   let fixture =
+    --         emptyFixture
+    --           { _repeatsCount = return 1
+    --           , _sendMsg = \_ -> return ()
+    --           , _nameAdapter = return "Test"
+    --           }
+    --   runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
+    --     Left EmptyAnswer
   -- describe "sendMsgKeyboard send" $ do
   --   it "should send sendMsgKeyboard " $ do
   --     let fixture =

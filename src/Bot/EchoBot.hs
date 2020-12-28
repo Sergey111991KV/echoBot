@@ -24,9 +24,7 @@ import Bot.Message (BotCompatibleMessage(textMsg), BotMsg(..))
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
-    ( errorText,
-      Error(CantConvertFromArray, CannotRepeatCountSet,
-            CannotRepeatFalseNumber, NotNewMsg, CantConvertFromData) )
+   
    
 
 class (Bot m ,MonadError Error m )=>
@@ -100,15 +98,19 @@ finalEchoBot = do
   processBot <-  processEchoBot `catchError` ( return . Left )
   case processBot of
     Right () -> do
-      liftIO (threadDelay 100000) >> finalEchoBot
+      liftIO (threadDelay 500000) >> finalEchoBot
     Left err -> do
       writeLogE $ errorText err <> nameA
       case err of
         NotNewMsg -> 
-          liftIO (threadDelay 100000) >> finalEchoBot
+          liftIO (threadDelay 500000) >> finalEchoBot
         CantConvertFromData -> 
-          liftIO (threadDelay 100000) >> finalEchoBot
+          liftIO (threadDelay 500000) >> finalEchoBot
         CantConvertFromArray ->  
-          liftIO (threadDelay 100000) >> finalEchoBot
+          liftIO (threadDelay 500000) >> finalEchoBot
+        CannotRepeatCountSet ->
+          liftIO (threadDelay 500000) >> finalEchoBot 
+        NotAnswer ->
+          throwError NotAnswer
         _ -> return ()
       
