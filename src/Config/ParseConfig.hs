@@ -22,10 +22,8 @@ toPairArray = Parsec.many1 $ do
   Parsec.eof <|> mySeparator
   return pair
 
-
 defText :: Parsec.Parsec Text () String 
 defText = return []
-
 
 mySeparator :: Parsec.Parsec Text () ()
 mySeparator = do
