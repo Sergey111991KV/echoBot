@@ -20,14 +20,14 @@
 
 ### All you need to start project:
 
-*  create file "bot.config" like in templates/bot.config.template 
-* write your option and script to start project, like this:
+*       create file "bot.config" like in templates/bot.config.template 
+*       write your option and script to start project, like this:
                         TelegramToken 889:9jhhjj
                         VKtoken dsfdsfsdfsadfasfasddsfsd345
                         RepeatCount 2
                         HelpMessage "default help message"
-                        // no quotes
-* take script in terminal:
+
+*       take script in terminal:
                         stack build
 ## Structure of project.
         All logic divided for 2 group: Bot  (main logic) and Adapter (implementation + he). For started project I used ReaderT design pattern. 
