@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Adapter.VK.VKRequest
   ( sendVKKeyboard
   , msgSendVK
