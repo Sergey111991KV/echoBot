@@ -1,8 +1,26 @@
-{-# LANGUAGE TypeSynonymInstances #-}
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-import Network.HTTP.Client 
+    ( ($),
+      Eq((==)),
+      Monad(return),
+      Show(show),
+      Semigroup((<>)),
+      Integer,
+      Either(..),
+      String,
+      Text,
+      MonadIO(liftIO),
+      (.),
+      (&&),
+      print,
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
+import Network.HTTP.Client
+    ( httpLbs, parseRequest, Response(responseBody) ) 
 import Data.Aeson ( eitherDecode, Array, Value(String, Number) )
 import Control.Monad.Except
     ( MonadError(throwError) )
@@ -13,13 +31,20 @@ import qualified Data.Vector as V
 
 
 import Adapter.VK.VKConfig
+    ( DynamicState(longConfig),
+      State(..),
+      StaticState(waits, getLongPollUrl, vkManager, sendMsgUrl,
+                  accessToken, version),
+      VKMonad,
+      VKToken(takeVKToken),
+      VKVersion(takeVKVersion) )
 import Adapter.VK.VKEntity
   ( MessageVK(MessageVK)
   , ResponseVK(ResponseVK)
   , UpdatesVK(UpdatesVK)
   , VKLongPollConfig(key, server, tsLast)
   )
-import Bot.Request
+import Bot.Request ( urlEncodeVars, sendRequestUrl )
 import Bot.Error
     ( Error(CantConvertFromArray, NotAnswer, CantConvertFromData) )
 import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
@@ -138,7 +163,7 @@ sendMsgHelp helpMess (BotMsg msg) = do
        [    ("access_token", takeVKToken $ accessToken (staticState st))
           , ("v", show . takeVKVersion . version $ staticState st)
           , ("user_id", show $ chatId msg)
-          , ("message" , unpack $ helpMess)
+          , ("message" , unpack  helpMess)
         ]
 
 getNameAdapter :: VKMonad r m => m Text

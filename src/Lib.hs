@@ -10,11 +10,10 @@ import Control.Monad.Except
       ExceptT,
       MonadError(throwError),
       runExceptT )
-import Control.Monad ( when )
+
 import Bot.EchoBot ( finalEchoBot, EchoBot(..) )
 import ClassyPrelude
     ( ($),
-      Eq((/=)),
       Monad(return),
       Functor,
       Applicative,
@@ -28,8 +27,10 @@ import ClassyPrelude
       MonadIO(..),
       SomeException,
       (.),
+      unless,
       getLine,
       print,
+      null,
       asks,
       getCurrentTime,
       try,
@@ -37,6 +38,8 @@ import ClassyPrelude
       newTVarIO,
       MonadReader,
       ReaderT(..) )
+    
+   
 import Data.Has (Has(getter))
 import Bot.Error
     ( errorText,
@@ -100,7 +103,7 @@ getConfigTel fp = do
         Right ([], anotherString) -> do
           throwError $ ErrorParseConfig anotherString
         Right (configPair, anotherString) -> do
-          Control.Monad.when (anotherString /= []) . print $ ("This string has not been parsed:  " <> anotherString)
+          unless  (null anotherString) . print $ ("This string has not been parsed:  " <> anotherString)
           dynSt <- Config.telDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.telStaticConf configPair
@@ -179,7 +182,7 @@ getConfigVK fp = do
         Right ([], anotherString) -> do
           throwError $ ErrorParseConfig anotherString
         Right (configPair,anotherString) -> do
-          Control.Monad.when (anotherString /= []) . print $ ("This string has not been parsed:  " <> anotherString)
+          unless  (null anotherString) . print $ ("This string has not been parsed:  " <> anotherString)
           dynSt <- Config.vkDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.vkStaticConf configPair

@@ -4,13 +4,10 @@ import ClassyPrelude
 
 data Error
   = NotAnswer
-  | NotConnect
   | EmptyAnswer
   | NotNewMsg
   | CannotRepeatCountSet
   | CannotRepeatFalseNumber
-  | CannotGetConfig
-  | CannotGetMsg
   | CannotSendMsg
   | CannotSendMsgHelp
   | CannotSendKeyboard

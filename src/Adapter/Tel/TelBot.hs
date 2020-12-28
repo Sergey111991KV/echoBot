@@ -1,6 +1,23 @@
 module Adapter.Tel.TelBot where
 
 import ClassyPrelude
+    ( ($),
+      Eq((==)),
+      Monad(return),
+      Ord((>)),
+      Show(show),
+      Semigroup((<>)),
+      Integer,
+      Either(..),
+      String,
+      Text,
+      MonadIO(liftIO),
+      (.),
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
   
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))

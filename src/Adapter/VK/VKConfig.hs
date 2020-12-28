@@ -16,7 +16,7 @@ import ClassyPrelude
 import Data.Aeson (FromJSON)
 import Data.Has (Has)
 import Control.Monad.Except ( MonadError )
-import Network.HTTP.Client
+import Network.HTTP.Client ( Manager )
 
 import Bot.Error ( Error )
 import Log.ImportLog (Log, LogConfig)

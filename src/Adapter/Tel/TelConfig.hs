@@ -13,7 +13,7 @@ import ClassyPrelude
 
 import Control.Monad.Except ( MonadError )
 import Data.Has (Has)
-import Network.HTTP.Client
+import Network.HTTP.Client ( Manager )
 
 import Log.ImportLog ( LogConfig, Log ) 
 import Bot.Error ( Error ) 

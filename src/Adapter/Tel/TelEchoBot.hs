@@ -22,14 +22,20 @@ import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Has (Has(getter))
 import Network.HTTP.Client
+    ( HttpException, Manager, Response(responseBody) )
   
 import Adapter.Tel.TelConfig
+    ( DynamicState(waitForRepeat, repeats),
+      State(staticState, dynamicState),
+      StaticState(botUrl, token, textSendMsgTel, telManager,
+                  textMsgHelp),
+      TelMonad )
    
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage), telKeyb )
 import Bot.Error ( Error(HttpException) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
-import Bot.Request
+import Bot.Request ( sendRequestWithBody' )
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg botMsg) = do
