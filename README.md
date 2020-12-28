@@ -30,7 +30,8 @@
 *       take script in terminal:
                         stack build
 ## Structure of project.
-        All logic divided for 2 group: Bot  (main logic) and Adapter (implementation + he). For started project I used ReaderT design pattern. 
+        All logic divided for 2 group: Bot  (main logic) and Adapter (implementation). 
+        I used for ReaderT design pattern. 
         Adapter/Telegram - all logic for Telegram.
         Adapter/VK - all logic for VK.
         Keyboard VK is in keyboard.json
