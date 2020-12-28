@@ -21,6 +21,7 @@ import ClassyPrelude
       Bool(..),
       IO,
       Either(..),
+<<<<<<< HEAD
       String,
       (.),
       SomeException,
@@ -29,6 +30,18 @@ import ClassyPrelude
       Text,
       getLine,
       print,
+=======
+      FilePath,
+      String,
+      Text,
+      MonadIO(..),
+      SomeException,
+      (.),
+      unless,
+      getLine,
+      print,
+      null,
+>>>>>>> master2
       asks,
       getCurrentTime,
       try,
@@ -36,11 +49,21 @@ import ClassyPrelude
       newTVarIO,
       MonadReader,
       ReaderT(..) )
+<<<<<<< HEAD
    
  
 import Data.Has (Has(getter))
 import Bot.Error
     ( Error(ErrorGetConfigPair, ErrorGetConfig), errorText ) 
+=======
+    
+   
+import Data.Has (Has(getter))
+import Bot.Error
+    ( errorText,
+      Error(ErrorParseConfig, ErrorGetConfig, ErrorGetConfigPair) )
+   
+>>>>>>> master2
 import qualified Config.Config as Config
 import qualified Data.Text.IO as TIO
 import Log.ImportLog (Log(..), LogWrite(Debug, Error, Warning), writeLogHandler)
@@ -96,7 +119,14 @@ getConfigTel fp = do
       let parRaw = Config.getPairFromFile configRaw
       case parRaw of 
         Left _ -> throwError ErrorGetConfigPair
+<<<<<<< HEAD
         Right configPair -> do
+=======
+        Right ([], anotherString) -> do
+          throwError $ ErrorParseConfig anotherString
+        Right (configPair, anotherString) -> do
+          unless  (null anotherString) . print $ ("This string has not been parsed:  " <> anotherString)
+>>>>>>> master2
           dynSt <- Config.telDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.telStaticConf configPair
@@ -168,10 +198,21 @@ getConfigVK fp = do
   case (textFromFile :: Either SomeException Text) of
     Left _ -> throwError ErrorGetConfig
     Right configRaw -> do
+<<<<<<< HEAD
       let parRaw = Config.getPairFromFile configRaw
       case parRaw of 
         Left _ -> throwError ErrorGetConfigPair
         Right configPair -> do
+=======
+      print configRaw
+      let parRaw = Config.getPairFromFile configRaw
+      case parRaw of 
+        Left _ -> throwError ErrorGetConfigPair
+        Right ([], anotherString) -> do
+          throwError $ ErrorParseConfig anotherString
+        Right (configPair,anotherString) -> do
+          unless  (null anotherString) . print $ ("This string has not been parsed:  " <> anotherString)
+>>>>>>> master2
           dynSt <- Config.vkDynamicConf configPair
           dynSt'  <- newTVarIO  dynSt
           staticSt <-  Config.vkStaticConf configPair

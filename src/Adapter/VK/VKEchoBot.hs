@@ -3,6 +3,7 @@ module Adapter.VK.VKEchoBot where
 import ClassyPrelude
     ( ($),
       Monad(return),
+<<<<<<< HEAD
       Bool,
       Integer,
       Maybe(Just, Nothing),
@@ -34,6 +35,45 @@ import Data.Aeson
 
 sendMsgKeyboard :: (MonadIO m, VKMonad r m) => BotMsg -> m ()
 sendMsgKeyboard (BotMsg msg) = do
+=======
+      Show(show),
+      Bool,
+      Integer,
+      Maybe(..),
+      Text,
+      MonadIO(liftIO),
+      (.),
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO,
+      Utf8(decodeUtf8) )
+
+import Control.Monad.Except
+    (  MonadError(throwError) )  
+import Data.Has (Has(getter))
+import Data.Aeson ( decode, encode )
+
+
+import Bot.Error ( Error(CannotSendKeyboard) ) 
+import Bot.Message
+    ( BotCompatibleMessage(textMsg, chatId), BotMsg(..) )
+import Bot.Request ( sendRequestUrl ) 
+import Adapter.VK.VKKeyboard ( getJSON, Keyboard ) 
+import Adapter.VK.VKConfig
+    ( DynamicState(waitForRepeat, repeats),
+      State(staticState, dynamicState),
+      StaticState(vkManager, sendMsgUrl, accessToken, version, helpMsg),
+      VKMonad,
+      VKToken(takeVKToken),
+      VKVersion(takeVKVersion) )
+    
+
+
+sendMsgKeyboard :: VKMonad r m => BotMsg -> m ()
+sendMsgKeyboard (BotMsg msg) =  do
+>>>>>>> master2
   st <- asks getter 
   keyKeyboard <- liftIO  getJSON
   let keyboardMaybe =  (decode keyKeyboard :: Maybe Keyboard)
@@ -41,6 +81,7 @@ sendMsgKeyboard (BotMsg msg) = do
     Nothing -> do
       throwError CannotSendKeyboard
     Just k  -> do
+<<<<<<< HEAD
       let url = "api.vk.com"
       _ <-
         liftIO $
@@ -53,18 +94,33 @@ sendMsgKeyboard (BotMsg msg) = do
       Log.writeLogD "sendMsgKeyboard VK "
       return ()
        
+=======
+      liftIO $ sendRequestUrl (vkManager $ staticState st) (sendMsgUrl $ staticState st)
+       [    ("access_token", takeVKToken $ accessToken (staticState st))
+          , ("v", show . takeVKVersion . version $ staticState st)
+          , ("user_id", show $ chatId msg)
+          , ("message" , unpack $ textMsg msg)
+          ,  ("keyboard",unpack $ decodeUtf8 (encode k))
+        ]
+>>>>>>> master2
 
 msgHelp :: VKMonad r m => m Text
 msgHelp = do
   st <- asks getter 
+<<<<<<< HEAD
   -- Log.writeLogD "msgHelp VK "
+=======
+>>>>>>> master2
   return . helpMsg $  staticState st
 
 countRepeat :: VKMonad r m => m Integer
 countRepeat = do
   st <- asks getter 
   dynSt <- readTVarIO $ dynamicState st 
+<<<<<<< HEAD
   -- Log.writeLogD "countRepeat VK "
+=======
+>>>>>>> master2
   return $ repeats dynSt
 
 

@@ -28,7 +28,10 @@ dependencies:
 - data-has
 - text
 - bytestring
+<<<<<<< HEAD
 - http-conduit
+=======
+>>>>>>> master2
 - http-client
 - http-client-tls
 - http-types
@@ -39,7 +42,10 @@ dependencies:
 - time
 - text-time
 - hspec
+<<<<<<< HEAD
 - req
+=======
+>>>>>>> master2
 - parsec
 - safe-exceptions
 
@@ -59,6 +65,12 @@ default-extensions:
 
 
 library:
+<<<<<<< HEAD
+=======
+  when:
+  - condition: false
+    other-modules: Paths_echo_bot2
+>>>>>>> master2
   ghc-options:
     - -Wall
     - -Werror

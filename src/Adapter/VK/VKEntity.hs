@@ -2,7 +2,28 @@ module Adapter.VK.VKEntity where
 
 
 import ClassyPrelude
+<<<<<<< HEAD
 import Data.Aeson
+=======
+    ( Show,
+      Applicative((<*>)),
+      Generic,
+      Double,
+      Integer,
+      String,
+      Text,
+      (<$>),
+      MonadPlus(mzero) )
+import Data.Aeson
+    ( (.:),
+      object,
+      FromJSON(parseJSON),
+      Array,
+      Value(Object),
+      KeyValue((.=)),
+      ToJSON(toJSON) )
+      
+>>>>>>> master2
 import Bot.Message (BotCompatibleMessage(..))
 
 data UpdatesVK =

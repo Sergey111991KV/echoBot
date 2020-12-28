@@ -33,4 +33,7 @@ import Adapter.VK.VKEchoBot as VK
       setCountRepeat,
       nameAdapter )
 
+<<<<<<< HEAD
 import Adapter.VK.VKRequest as VK (sendVKKeyboard)
+=======
+>>>>>>> master2

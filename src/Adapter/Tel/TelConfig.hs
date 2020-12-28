@@ -13,6 +13,10 @@ import ClassyPrelude
 
 import Control.Monad.Except ( MonadError )
 import Data.Has (Has)
+<<<<<<< HEAD
+=======
+import Network.HTTP.Client ( Manager )
+>>>>>>> master2
 
 import Log.ImportLog ( LogConfig, Log ) 
 import Bot.Error ( Error ) 
@@ -46,4 +50,9 @@ data StaticState =
     , getUpdates :: String
     , textSendMsgTel :: String
     , log :: LogConfig
+<<<<<<< HEAD
     } deriving (Show, Generic)
+=======
+    , telManager :: Manager 
+    } deriving Generic
+>>>>>>> master2
