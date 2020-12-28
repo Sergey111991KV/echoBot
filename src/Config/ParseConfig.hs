@@ -7,8 +7,8 @@ import qualified Text.Parsec as Parsec
 type ConfigPair = (String, String)
 
 
-toPairs :: Parsec.Parsec Text () ConfigPair
-toPairs = do
+toPair :: Parsec.Parsec Text () ConfigPair
+toPair = do
   key <- Parsec.many1 (Parsec.letter <|> Parsec.digit <|> Parsec.char ':')
   Parsec.spaces
   value <-
@@ -18,7 +18,7 @@ toPairs = do
 
 toPairArray :: Parsec.Parsec Text () [ConfigPair]
 toPairArray = Parsec.many1 $ do
-  pair <- toPairs 
+  pair <- toPair 
   Parsec.eof <|> mySeparator
   return pair
 
