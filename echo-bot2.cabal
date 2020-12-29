@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2ea1172698e75dd13c9452e03dec0dd4b4b1cb1eb2d86092facfbd4527ee034f
+-- hash: 48bbf4b121b0154cc13b29986ea0ce5ef69088db70c00aa3b525d28585411dcb
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -36,7 +36,6 @@ library
       Adapter.VK.VKConfig
       Adapter.VK.VKEchoBot
       Adapter.VK.VKEntity
-      Adapter.VK.VKKeyboard
       Adapter.VK.VKMain
       Bot.Bot
       Bot.EchoBot
@@ -45,6 +44,7 @@ library
       Bot.Request
       Config.Config
       Config.ParseConfig
+      Config.VKKeyboard
       Lib
       Log.ImportLog
       Log.Log

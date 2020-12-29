@@ -1,20 +1,8 @@
 module Config.Config  where
 
 import ClassyPrelude
-    ( ($),
-      Eq((==)),
-      Monad(return),
-      Bool(True),
-      Maybe(Nothing),
-      Either,
-      String,
-      Text,
-      MonadIO(..),
-      (||),
-      fromMaybe,
-      pack,
-      IsMap(lookup) )
   
+import Data.Aeson
 import Control.Monad.Except ( MonadError(throwError) ) 
 import qualified Prelude as P
 import qualified Text.Parsec as Pars
@@ -28,8 +16,8 @@ import Log.ImportLog
   ( LogConfig(LogConfig, logConsole, logFile, logLevelForFile)
   , LogWrite(Debug)
   )
-import Bot.Error ( Error(ErrorGetConfigPair) )
-
+import Bot.Error ( Error(CannotGetKeyboardVK, ErrorGetConfigPair) ) 
+import Config.VKKeyboard ( getJSON, VKKeyboard )
 
 getPairFromFile :: Text -> Either Pars.ParseError ([ConfigPair],String)
 getPairFromFile = Pars.parse myParser ""
@@ -84,14 +72,19 @@ vkDynamicConf  configPair =
 
 vkStaticConf ::  (MonadIO m, MonadError Error m) =>  [ConfigPair] ->  m  VKBot.StaticState
 vkStaticConf  configPair = 
-   if   lookup "VKtoken" configPair == Nothing || 
-        lookup "msgHelp" configPair == Nothing
+   if   paramToken == Nothing || 
+        lookup "msgHelp" configPair == Nothing 
     then throwError ErrorGetConfigPair
     else do
-      manager <- liftIO $ newManager tlsManagerSettings
-      return $ VKBot.StaticState
+      maybeKeyboard <-  liftIO  getJSON
+      let resultMaybeKeyboard =  (decode maybeKeyboard :: Maybe VKKeyboard)
+      case resultMaybeKeyboard of
+        Nothing -> throwError CannotGetKeyboardVK
+        Just vkKeyboard  -> do
+          manager <- liftIO $ newManager tlsManagerSettings
+          return $ VKBot.StaticState
               { VKBot.accessToken = VKBot.VKToken $ fromMaybe "" paramToken
-              , VKBot.helpMsg =  pack $ fromMaybe "msgHelp" (lookup "msgHelp" configPair)
+              , VKBot.helpMsg =  pack $ fromMaybe "msgHelp" paramHelp
               , VKBot.version = VKBot.VKVersion 5.52
               , VKBot.waits = 25
               , VKBot.getLongPollUrl =
@@ -105,7 +98,10 @@ vkStaticConf  configPair =
                    , logConsole = True
                    }
             , VKBot.vkManager =  manager
+            , VKBot.keyboard = vkKeyboard
              } 
   where
     paramToken = lookup "VKtoken" configPair
+    paramHelp = lookup "msgHelp" configPair
+ 
 

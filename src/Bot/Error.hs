@@ -20,6 +20,7 @@ data Error
   | ErrorGetConfigRight
   | ErrorGetConfigLeft
   | HttpException
+  | CannotGetKeyboardVK
   | ErrorParseConfig String 
   deriving (Eq, Ord, Read, Show, Generic)
 

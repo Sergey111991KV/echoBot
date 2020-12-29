@@ -20,6 +20,7 @@ import Network.HTTP.Client ( Manager )
 
 import Bot.Error ( Error )
 import Log.ImportLog (Log, LogConfig)
+import Config.VKKeyboard
 
 type VKMonad r m = (Has State r, MonadReader r m, MonadIO m, Log m, MonadError Error m)
 
@@ -53,6 +54,7 @@ data StaticState =
     , sendMsgUrl :: String
     , log :: LogConfig
     , vkManager :: Manager 
+    , keyboard :: VKKeyboard
     }
   deriving Generic
 
