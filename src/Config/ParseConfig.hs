@@ -27,7 +27,7 @@ defText = return []
 
 mySeparator :: Parsec.Parsec Text () ()
 mySeparator = do
-  _ <- Parsec.char '\n' 
+  _ <- Parsec.endOfLine 
   return ()
 
 helpText :: Parsec.Parsec Text () String
