@@ -19,7 +19,7 @@ data Error
   | ErrorWorkConnection
   | ErrorGetConfigRight
   | ErrorGetConfigLeft
-  | HttpException
+  | HttpExceptionBot
   | CannotGetKeyboardVK
   | ErrorParseConfig String 
   deriving (Eq, Ord, Read, Show, Generic)

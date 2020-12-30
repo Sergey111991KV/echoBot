@@ -33,7 +33,7 @@ import Adapter.Tel.TelConfig
    
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage), telKeyb )
-import Bot.Error ( Error(HttpException) )
+import Bot.Error ( Error(HttpExceptionBot) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
 import Bot.Request ( sendRequestWithJsonBody' )
 
@@ -47,7 +47,7 @@ sendMsgKeyboard (BotMsg botMsg) = do
       print (e :: HttpException)
       return "wrong"
   case upd of
-    "wrong" -> throwError HttpException
+    "wrong" -> throwError HttpExceptionBot
     _ -> return ()
 
 sendKeyboard :: Manager -> Integer -> String -> IO LBS.ByteString

@@ -1,28 +1,11 @@
 module Adapter.Tel.TelBot where
 
 import ClassyPrelude
-    ( ($),
-      Eq((==)),
-      Monad(return),
-      Ord((>)),
-      Show(show),
-      Semigroup((<>)),
-      Integer,
-      Either(..),
-      String,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      unpack,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
-  
+   
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
 import Control.Monad.Except
-    ( MonadError(catchError, throwError) )
+    
 import Network.HTTP.Client
     ( httpLbs, parseRequest, Response(responseBody) ) 
 
@@ -38,7 +21,7 @@ import Adapter.Tel.TelEntity
 import Bot.Error
     ( Error(CannotSendMsgHelp, NotAnswer, NotNewMsg, CannotSendMsg) ) 
 import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
-import Bot.Request ( sendRequestWithJsonBody, buildBody ) 
+import Bot.Request 
 
 
 getNameAdapter :: TelMonad r m => m Text
@@ -50,6 +33,9 @@ getMsgLast = do
   dynSt <- readTVarIO $ dynamicState st
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> getUpdates (staticState st)
   request <- liftIO $ parseRequest url
+
+  -- responseLastMsg' <- liftEither $ sendReq (telManager $ staticState st) request -- Could not deduce 
+
   responseLastMsg <- liftIO $ httpLbs request (telManager $ staticState st)
   let updT = eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
   (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT

@@ -16,7 +16,10 @@ import ClassyPrelude
       Char,
       Int,
       IO,
+      Either,
       String,
+      MonadIO(..),
+      (<$>),
       (.),
       void,
       (&&),
@@ -26,16 +29,22 @@ import ClassyPrelude
       map,
       elem,
       foldr,
+      try,
       IsSequence(partition) )
+   
   
+import Control.Monad.Except
+    (  MonadError )
 
 import Network.HTTP.Client
-    ( httpLbs,
-      parseRequest,
-      Manager,
+    ( RequestBody(RequestBodyLBS),
       Request(requestBody, method, requestHeaders),
-      RequestBody(RequestBodyLBS),
-      Response )
+      Manager,
+      Response,
+      httpLbs,
+      parseRequest,
+      HttpException )
+import Control.Arrow ( ArrowChoice(left) )
   
 import Data.Aeson (Value(String), encode, object)
 import qualified Data.ByteString.Lazy.Internal as LBS
@@ -43,6 +52,7 @@ import Data.Char (isAlphaNum, isAscii)
 import qualified Data.Text as T
 import qualified Network.HTTP.Types as HTTP
 import qualified Prelude as P
+import Bot.Error ( Error(HttpExceptionBot) ) 
 
 urlEncode :: String -> String
 urlEncode [] = []
@@ -112,4 +122,16 @@ sendRequestUrl manager url urlEncArray = do
             }
   _ <- httpLbs req manager
   return ()
+
+-- sendJSON :: (FromJSON a, ToJSON b, MonadError Eror) => Manager ->  b -> m a
+-- sendJSON manager j = sendReq (buildReq j) >>= liftEither . eitherDecode . responseBody
+--   where buildReq j =  somehtingHere
+--        { method = "POST"
+--        , requestBody = encode j
+--        , requestHeaders = [(HTTP.hContentType, "application/json")]
+--        })
+sendReq :: (MonadError Error m, MonadIO m) => Manager ->  Request -> m (Either Error (Response LBS.ByteString))
+sendReq manager req =  liftIO  sr
+  where sr = left httpToMy <$> try (httpLbs req manager) 
+        httpToMy (_ :: HttpException) = HttpExceptionBot
 
