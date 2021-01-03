@@ -7,7 +7,7 @@ import Data.Has (Has(getter))
 import Control.Monad.Except
     
 import Network.HTTP.Client
-import qualified Data.ByteString.Lazy.Internal as LBS
+
 
 import Adapter.Tel.TelConfig
     ( DynamicState(lastMsgId),
@@ -33,8 +33,7 @@ getMsgLast = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> getUpdates (staticState st)
-  request <- liftIO $ parseRequest url
-  responseLastMsg <- liftIO $ httpLbs request (telManager $ staticState st)
+  responseLastMsg <- sendReq (telManager $ staticState st) url []
   let updT = eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
   (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT
   let newIdMsg = idMsg msg
@@ -83,15 +82,16 @@ sendMsgHelp helpText (BotMsg botMsg) = do
   st <- asks getter
   let idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
-  sendText helpText idM url `catchError`  (\_ -> do
-      throwError CannotSendMsgHelp )
-  
+  sendText helpText idM url 
 
 sendText :: TelMonad r m => Text -> Integer -> String -> m ()
 sendText txtOfMsg chatIdSendMsg sendUrl = do
   st <- asks getter
-  liftIO $ sendRequestWithJsonBody
-    (telManager $ staticState st)
-    sendUrl
-    (buildBody
+  _ <- sendJSONraw' (telManager $ staticState st) sendUrl (buildBody
        [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])
+  return ()
+  -- liftIO $ sendRequestWithJsonBody
+  --   (telManager $ staticState st)
+  --   sendUrl
+  --   (buildBody
+  --      [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])

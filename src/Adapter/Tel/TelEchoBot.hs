@@ -1,28 +1,9 @@
 module Adapter.Tel.TelEchoBot where
 
 import ClassyPrelude
-    ( ($),
-      Monad(return),
-      Semigroup((<>)),
-      Bool,
-      Integer,
-      IO,
-      String,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      print,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
-import Control.Monad.Except ( MonadError(throwError) )
-import Control.Exception ( catch )
-import Data.Aeson (encode)
-import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Has (Has(getter))
-import Network.HTTP.Client
-    ( HttpException, Manager, Response(responseBody) )
+
+ 
   
 import Adapter.Tel.TelConfig
     ( DynamicState(waitForRepeat, repeats),
@@ -33,35 +14,38 @@ import Adapter.Tel.TelConfig
    
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage), telKeyb )
-import Bot.Error ( Error(HttpExceptionBot) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
-import Bot.Request ( sendRequestWithJsonBody' )
+import Bot.Request 
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg botMsg) = do
   st <- asks getter
   let idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
-  upd <-
-    liftIO . Control.Exception.catch (sendKeyboard (telManager $ staticState st) idM url) $ \e -> do
-      print (e :: HttpException)
-      return "wrong"
-  case upd of
-    "wrong" -> throwError HttpExceptionBot
-    _ -> return ()
+  sendJSON' (telManager $ staticState st) url (TelKeyboardPostMessage  
+                                                idM
+                                                "please select repeats count:" 
+                                                telKeyb)
+  -- upd <-
+  --   liftIO . Control.Exception.catch (sendKeyboard (telManager $ staticState st) idM url) $ \e -> do
+  --     print (e :: HttpException)
+  --     return "wrong"
+  -- case upd of
+  --   "wrong" -> throwError HttpExceptionBot
+  --   _ -> return ()
 
-sendKeyboard :: Manager -> Integer -> String -> IO LBS.ByteString
-sendKeyboard manager chatIdKeyboard sendUrl = do
-  res <-
-    liftIO $ sendRequestWithJsonBody'
-      manager
-      sendUrl
-      (encode $
-       TelKeyboardPostMessage
-         chatIdKeyboard
-         "please select repeats count:"
-         telKeyb)
-  return $ responseBody res
+-- sendKeyboard :: Manager -> Integer -> String -> IO LBS.ByteString
+-- sendKeyboard manager chatIdKeyboard sendUrl = do
+--   res <-
+--     liftIO $ sendRequestWithJsonBody'
+--       manager
+--       sendUrl
+--       (encode $
+--        TelKeyboardPostMessage
+--          chatIdKeyboard
+--          "please select repeats count:"
+--          telKeyb)
+--   return $ responseBody res
 
 msgHelp :: TelMonad r m => m Text
 msgHelp = do

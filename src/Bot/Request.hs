@@ -10,13 +10,15 @@ import Network.HTTP.Client
    
 import Control.Arrow ( ArrowChoice(left) )
   
-import Data.Aeson (Value(String), encode, object)
+import Data.Aeson 
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Char (isAlphaNum, isAscii)
 import qualified Data.Text as T
 import qualified Network.HTTP.Types as HTTP
 import qualified Prelude as P
 import Bot.Error 
+
+
 urlEncode :: String -> String
 urlEncode [] = []
 urlEncode (ch:t)
@@ -65,34 +67,56 @@ buildRequestWithBody url body = do
        })
 
 
-sendRequestWithJsonBody :: Manager -> String -> LBS.ByteString -> IO ()
-sendRequestWithJsonBody manager url body = void $ sendRequestWithJsonBody'  manager url body
+-- sendRequestWithJsonBody :: Manager -> String -> LBS.ByteString -> IO ()
+-- sendRequestWithJsonBody manager url body = void $ sendRequestWithJsonBody'  manager url body
 
-sendRequestWithJsonBody' ::  Manager ->  String -> LBS.ByteString -> IO (Response LBS.ByteString)
-sendRequestWithJsonBody' manager url body = do
-  request <- buildRequestWithBody url (RequestBodyLBS body)
-  httpLbs request manager
+-- sendRequestWithJsonBody' ::  Manager ->  String -> LBS.ByteString -> IO (Response LBS.ByteString)
+-- sendRequestWithJsonBody' manager url body = do
+--   request <- buildRequestWithBody url (RequestBodyLBS body)
+--   httpLbs request manager
 
 
-sendRequestUrl ::  Manager -> String -> [(String, String)]  -> IO ()
-sendRequestUrl manager url urlEncArray = do
-  let optionUrl = urlEncodeVars urlEncArray
-  let mainUrl = url ++ "?" ++ optionUrl
-  initReq <- parseRequest mainUrl
+sendJSON :: (FromJSON a, ToJSON b, MonadError Error m, MonadIO m) => Manager -> String ->  b -> m a
+sendJSON manager url objToDecode = do
+  resp <- sendJSONraw manager url objToDecode 
+  let respDec = eitherDecode $ responseBody resp
+  case respDec of
+    Left  _ -> throwError ErrorDecodeData
+    Right objFromDecode -> return  objFromDecode
+
+
+sendJSON' :: (MonadError Error m, MonadIO m, ToJSON b) => Manager -> String -> b -> m ()
+sendJSON' manager url objToDecode  = void $ sendJSONraw manager url objToDecode
+
+sendJSONraw :: (MonadError Error m, MonadIO m, ToJSON b) => Manager -> String -> b -> m (Response LBS.ByteString)
+sendJSONraw manager url obj = do
+  initReq <- liftIO $ parseRequest url
   let req = initReq
             { method = "POST"
-            , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
+            , requestBody =  RequestBodyLBS $ encode obj
+            , requestHeaders = [(HTTP.hContentType, "application/json")]
             }
-  _ <- httpLbs req manager
-  return ()
-
--- sendJSON :: (FromJSON a, ToJSON b, MonadError Eror) => Manager ->  b -> m a
--- sendJSON manager j = sendReq (buildReq j) >>= liftEither . eitherDecode . responseBody
---   where buildReq j =  somehtingHere
---        { method = "POST"
---        , requestBody = encode j
---        , requestHeaders = [(HTTP.hContentType, "application/json")]
---        })
+  resp <- liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
+  case resp of
+    Left e -> throwError e
+    Right rest -> return rest
+  where
+      httpToMyExept (_ :: HttpException) = HttpExceptionBot
+  
+sendJSONraw' :: (MonadError Error m, MonadIO m) => Manager -> String -> LBS.ByteString -> m (Response LBS.ByteString)
+sendJSONraw' manager url obj = do
+  initReq <- liftIO $ parseRequest url
+  let req = initReq
+            { method = "POST"
+            , requestBody =  RequestBodyLBS  obj
+            , requestHeaders = [(HTTP.hContentType, "application/json")]
+            }
+  resp <- liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
+  case resp of
+    Left e -> throwError e
+    Right rest -> return rest
+  where
+      httpToMyExept (_ :: HttpException) = HttpExceptionBot
 
 sendReq :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Response LBS.ByteString)
 sendReq manager url urlEncArray =   do
@@ -103,8 +127,8 @@ sendReq manager url urlEncArray =   do
             { method = "POST"
             , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
             }
-  t <- liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
-  case t of
+  resp <- liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
+  case resp of
     Left e -> throwError e
     Right rest -> return rest
   where
@@ -114,64 +138,23 @@ sendReq manager url urlEncArray =   do
 sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()    
 sendReq'  manager url urlEncArray = void $ sendReq manager url urlEncArray 
 
--- sendReqTest' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Response LBS.ByteString)
--- sendReqTest' manager url  =   do
---   let optionUrl = urlEncodeVars urlEncArray
---   let mainUrl = url ++ "?" ++ optionUrl
---   initReq <- liftIO $ parseRequest mainUrl
---   let req = initReq
---             { method = "POST"
---             , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
---             }
---   t <- liftIO  $ left httpToMy <$> try (httpLbs req manager)
---   case t of
---     Left _ -> throwError HttpExceptionBot
---     Right rest -> return rest
---   where
---       httpToMy (_ :: HttpException) = HttpExceptionBot
 
-
--- sendReq :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Either Error (Response LBS.ByteString))
--- sendReq manager url urlEncArray =   do
---   let optionUrl = urlEncodeVars urlEncArray
---   let mainUrl = url ++ "?" ++ optionUrl
---   initReq <- liftIO $ parseRequest mainUrl
---   let req = initReq
---             { method = "POST"
---             , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
---             }
---   liftIO  $ left httpToMy <$> try (httpLbs req manager) 
---   where
---       httpToMy (_ :: HttpException) = HttpExceptionBot
-  
--- sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()
--- sendReq' manager url urlEncArray =   void $ sendReq  manager url urlEncArray
-  -- do
-  -- let optionUrl = urlEncodeVars urlEncArray
-  -- let mainUrl = url ++ "?" ++ optionUrl
-  -- initReq <- liftIO $ parseRequest mainUrl
+-- initReq <- liftIO $ parseRequest url
   -- let req = initReq
-  --           { method = "POST"
-  --           , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
-  --           }
-  -- liftIO  $ left httpToMy <$> try (httpLbs req manager) 
+  --         { method = "POST"
+  --         , requestBody = RequestBodyLBS $ encode obj
+  --         , requestHeaders = [(HTTP.hContentType, "application/json")]
+  --         }
+  -- liftEither $ eitherDecode $ responseBody $ liftEither $ liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
+  -- -- f <- eitherDecode $ responseBody t
+  -- -- case f of
+  -- --   Left _ -> throwError HttpExceptionBot
+
   -- where
-  --     httpToMy (_ :: HttpException) = HttpExceptionBot
-
--- sendReq :: (MonadError Error m, MonadIO m) =>  Manager -> String -> [(String, String)]  -> m (Response LBS.ByteString)
--- --  => Manager ->  Request -> m (Either Error (Response LBS.ByteString))
--- sendReq manager url urlEncArray = do
---   -- let optionUrl = 
---   initReq <- liftIO $ parseRequest (url ++ "?" ++ urlEncodeVars urlEncArray)
---   let req = initReq
---             { method = "POST"
---             , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
---             }
---   -- result <- try $ liftIO $  httpLbs req manager 
-
-  -- case result of
-  --   Left _ -> throwError NotAnswer
-  --   Right a -> return a
-
- 
-
+  --     httpToMyExept (_ :: HttpException) = HttpExceptionBot
+  -- -- sendReq (buildReq j) >>= liftEither . eitherDecode . responseBody
+  -- -- where buildReq j =  somehtingHere
+  --      { method = "POST"
+  --      , requestBody = encode j
+  --      , requestHeaders = [(HTTP.hContentType, "application/json")]
+  --      })

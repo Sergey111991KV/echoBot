@@ -15,7 +15,6 @@ import Adapter.Tel.TelConfig as Tel
     ( State(..), TelMonad, StaticState(..), DynamicState(..) ) 
 import Adapter.Tel.TelEchoBot as Tel
     ( sendMsgKeyboard,
-      sendKeyboard,
       msgHelp,
       countRepeat,
       isWaitForRepeat,
