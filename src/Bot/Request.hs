@@ -112,7 +112,7 @@ sendReq manager url urlEncArray =   do
 
 
 sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()    
-
+sendReq'  manager url urlEncArray = void $ sendReq manager url urlEncArray 
 
 -- sendReqTest' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Response LBS.ByteString)
 -- sendReqTest' manager url  =   do
@@ -131,21 +131,21 @@ sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, St
 --       httpToMy (_ :: HttpException) = HttpExceptionBot
 
 
-sendReq :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Either Error (Response LBS.ByteString))
-sendReq manager url urlEncArray =   do
-  let optionUrl = urlEncodeVars urlEncArray
-  let mainUrl = url ++ "?" ++ optionUrl
-  initReq <- liftIO $ parseRequest mainUrl
-  let req = initReq
-            { method = "POST"
-            , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
-            }
-  liftIO  $ left httpToMy <$> try (httpLbs req manager) 
-  where
-      httpToMy (_ :: HttpException) = HttpExceptionBot
+-- sendReq :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Either Error (Response LBS.ByteString))
+-- sendReq manager url urlEncArray =   do
+--   let optionUrl = urlEncodeVars urlEncArray
+--   let mainUrl = url ++ "?" ++ optionUrl
+--   initReq <- liftIO $ parseRequest mainUrl
+--   let req = initReq
+--             { method = "POST"
+--             , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
+--             }
+--   liftIO  $ left httpToMy <$> try (httpLbs req manager) 
+--   where
+--       httpToMy (_ :: HttpException) = HttpExceptionBot
   
-sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()
-sendReq' manager url urlEncArray =   void $ sendReq  manager url urlEncArray
+-- sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()
+-- sendReq' manager url urlEncArray =   void $ sendReq  manager url urlEncArray
   -- do
   -- let optionUrl = urlEncodeVars urlEncArray
   -- let mainUrl = url ++ "?" ++ optionUrl

@@ -21,7 +21,7 @@ import Data.Aeson ( encode )
 
 import Bot.Message
     ( BotCompatibleMessage(textMsg, chatId), BotMsg(..) )
-import Bot.Request ( sendRequestUrl ) 
+import Bot.Request ( sendReq' )
 import Adapter.VK.VKConfig
     ( DynamicState(waitForRepeat, repeats),
       State(staticState, dynamicState),
@@ -35,7 +35,7 @@ import Adapter.VK.VKConfig
 sendMsgKeyboard :: VKMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg msg) =  do
   st <- asks getter 
-  liftIO $ sendRequestUrl (vkManager $ staticState st) (sendMsgUrl $ staticState st)
+  sendReq' (vkManager $ staticState st) (sendMsgUrl $ staticState st)
        [    ("access_token", takeVKToken $ accessToken (staticState st))
           , ("v", show . takeVKVersion . version $ staticState st)
           , ("user_id", show $ chatId msg)

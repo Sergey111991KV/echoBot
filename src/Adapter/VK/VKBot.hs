@@ -1,10 +1,25 @@
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-  
-    
-import Network.HTTP.Client
-    ( httpLbs, parseRequest, Response(responseBody) ) 
+    ( ($),
+      Eq((==)),
+      Monad(return),
+      Show(show),
+      Semigroup((<>)),
+      Integer,
+      Either(..),
+      String,
+      Text,
+      MonadIO(liftIO),
+      (.),
+      (&&),
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
+   
+import Network.HTTP.Client ( Response(responseBody) ) 
 import Data.Aeson ( eitherDecode, Array, Value(String, Number) )
 import Control.Monad.Except
     ( MonadError(throwError) )
@@ -12,7 +27,6 @@ import Data.ByteString.Lazy.Internal (ByteString)
 import Data.Has (Has(getter))
 import Data.Scientific (Scientific(coefficient))
 import qualified Data.Vector as V
-
 
 import Adapter.VK.VKConfig
     ( DynamicState(longConfig),
@@ -28,7 +42,7 @@ import Adapter.VK.VKEntity
   , UpdatesVK(UpdatesVK)
   , VKLongPollConfig(key, server, tsLast)
   )
-import Bot.Request 
+import Bot.Request (sendReq, sendReq' ) 
 import Bot.Error
     ( Error(CantConvertFromArray, NotAnswer, CantConvertFromData) )
 import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
@@ -40,7 +54,7 @@ getMsgLast = do
   stDyn <- readTVarIO dyn
   let url = "https://" <>  server (longConfig  stDyn)
  
-  responseLastMsg <- sendReqTest (vkManager stat) url  [   ("act", "a_check")
+  responseLastMsg <- sendReq (vkManager stat) url  [   ("act", "a_check")
                                                 ,   ("key", key (longConfig  stDyn))
                                                 ,   ("ts", show (tsLast $ longConfig  stDyn))
                                                 ,   ("wait", show (waits  stat))
@@ -48,28 +62,10 @@ getMsgLast = do
   caseOfGetMsg responseLastMsg
 
 
-                -- old version
-
-  -- let url =
-  --               "https://" <>
-  --               server (longConfig  stDyn) <>
-  --               "?act=a_check&key=" <>
-  --               key (longConfig  stDyn) <>
-  --               "&ts=" <>
-  --               show (tsLast $ longConfig  stDyn) <>
-  --               "&wait=" <> show (waits  stat)
-  -- request <- liftIO $ parseRequest url
-  -- responseLastMsg <- liftIO $ httpLbs request (vkManager stat)
-  -- caseOfGetMsg responseLastMsg
-
-
-
-
-
 getVKConfig :: VKMonad r m => m  State
 getVKConfig = do
   st <- asks getter
-  responseConfig <- sendReqTest   (vkManager $ staticState st) 
+  responseConfig <- sendReq   (vkManager $ staticState st) 
                 (getLongPollUrl (staticState st))  
                 [ ("access_token", takeVKToken . accessToken $ staticState st)
                 , ("v", show . takeVKVersion . version $ staticState st)
@@ -81,26 +77,6 @@ getVKConfig = do
       throwError NotAnswer
     Right (ResponseVK vkconfigpoll) -> do
       getNewStateLongPool vkconfigpoll
-
-
-              -- old version
-
---  let bodyReq =
---         urlEncodeVars
---           [ ("access_token", takeVKToken . accessToken $ staticState st)
---           , ("v", show . takeVKVersion . version $ staticState st)
---           ]
---   let url = getLongPollUrl (staticState st) <> bodyReq
---   request <- liftIO $ parseRequest url
---   responseConfig <- liftIO $ httpLbs request  (vkManager $ staticState st)
---   let upd =
---         eitherDecode (responseBody responseConfig) :: Either String ResponseVK
---   case upd of
---     Left _ -> do
---       throwError NotAnswer
---     Right (ResponseVK vkconfigpoll) -> do
---       getNewStateLongPool vkconfigpoll
-
 
   
 getNewStateLongPool :: VKMonad r m => VKLongPollConfig -> m State
@@ -168,34 +144,17 @@ sendMsg (BotMsg msg) =  do
           , ("user_id", show $ chatId msg)
           , ("message" , unpack $ textMsg msg) ]
 
-          -- old version 
-
-  -- liftIO $ sendRequestUrl
-  --   (vkManager $ staticState st)
-  --   (sendMsgUrl $ staticState st)
-  --      [    ("access_token", takeVKToken $ accessToken (staticState st))
-  --         , ("v", show . takeVKVersion . version $ staticState st)
-  --         , ("user_id", show $ chatId msg)
-  --         , ("message" , unpack $ textMsg msg)
-  --       ]
-
-
-
 
 sendMsgHelp :: VKMonad r m => Text -> BotMsg -> m  ()
 sendMsgHelp helpMess (BotMsg msg) = do
   st <- asks getter 
-  liftIO $ sendRequestUrl
-    (vkManager $ staticState st)
+  sendReq' (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)
        [    ("access_token", takeVKToken $ accessToken (staticState st))
           , ("v", show . takeVKVersion . version $ staticState st)
           , ("user_id", show $ chatId msg)
-          , ("message" , unpack  helpMess)
-        ]
+          , ("message" , unpack  helpMess) ]
+
 
 getNameAdapter :: VKMonad r m => m Text
 getNameAdapter = return "VK"
-
-
-    

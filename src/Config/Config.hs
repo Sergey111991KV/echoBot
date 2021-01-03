@@ -88,7 +88,7 @@ vkStaticConf  configPair =
               , VKBot.version = VKBot.VKVersion 5.52
               , VKBot.waits = 25
               , VKBot.getLongPollUrl =
-                 "https://api.vk.com/method/messages.getLongPollServer?" 
+                 "https://api.vk.com/method/messages.getLongPollServer" 
              , VKBot.getUpdatesUrl = ""
              , VKBot.sendMsgUrl = "https://api.vk.com/method/messages.send"
              , VKBot.log =
