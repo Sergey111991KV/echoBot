@@ -8,7 +8,7 @@ import qualified Prelude as P
 import qualified Text.Parsec as Pars
 import Network.HTTP.Client ( newManager )
 import Network.HTTP.Client.TLS ( tlsManagerSettings ) 
-import qualified Adapter.Tel.TelConfig as Tel
+import qualified Adapter.Tel.TelMain as Tel
 import qualified Adapter.VK.VKConfig as VKBot
 import qualified Adapter.VK.VKEntity as VKBot
 import Config.ParseConfig (ConfigPair, myParser)
@@ -54,6 +54,18 @@ telStaticConf configPair =
                    , logConsole = True
                    }
     , Tel.telManager =  manager
+    , Tel.telKeyboard = Tel.TelKeyboard
+      { keyboard =
+        [ [ Tel.TelButton "1" "1"
+          , Tel.TelButton "2" "2"
+          , Tel.TelButton "3" "3"
+          , Tel.TelButton "4" "4"
+          , Tel.TelButton "5" "5"
+          ]
+        ]
+    , resize = True
+    , oneTime = True
+    }
       }
   
 vkDynamicConf ::  MonadError Error m =>  [ConfigPair] -> m VKBot.DynamicState

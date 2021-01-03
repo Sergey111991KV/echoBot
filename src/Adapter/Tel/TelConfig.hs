@@ -17,7 +17,7 @@ import Network.HTTP.Client ( Manager )
 
 import Log.ImportLog ( LogConfig, Log ) 
 import Bot.Error ( Error ) 
-
+import Adapter.Tel.TelEntity ( TelKeyboard )
 
 type TelMonad r m = (Has  State r, MonadReader r m, MonadIO m, MonadError Error m, Log m)
 
@@ -48,4 +48,5 @@ data StaticState =
     , textSendMsgTel :: String
     , log :: LogConfig
     , telManager :: Manager 
+    , telKeyboard :: TelKeyboard
     } deriving Generic

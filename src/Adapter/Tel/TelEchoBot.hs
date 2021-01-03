@@ -6,14 +6,15 @@ import Data.Has (Has(getter))
  
   
 import Adapter.Tel.TelConfig
-    ( DynamicState(waitForRepeat, repeats),
+    ( StaticState(botUrl, token, textSendMsgTel, telManager,
+                  telKeyboard, textMsgHelp),
+      DynamicState(waitForRepeat, repeats),
       State(staticState, dynamicState),
-      StaticState(botUrl, token, textSendMsgTel, telManager,
-                  textMsgHelp),
       TelMonad )
+  
    
 import Adapter.Tel.TelEntity
-    ( TelKeyboardPostMessage(TelKeyboardPostMessage), telKeyb )
+    ( TelKeyboardPostMessage(TelKeyboardPostMessage) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
 import Bot.Request 
 
@@ -25,7 +26,7 @@ sendMsgKeyboard (BotMsg botMsg) = do
   sendJSON' (telManager $ staticState st) url (TelKeyboardPostMessage  
                                                 idM
                                                 "please select repeats count:" 
-                                                telKeyb)
+                                                (telKeyboard (staticState st)))
   -- upd <-
   --   liftIO . Control.Exception.catch (sendKeyboard (telManager $ staticState st) idM url) $ \e -> do
   --     print (e :: HttpException)

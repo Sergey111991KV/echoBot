@@ -21,4 +21,13 @@ import Adapter.Tel.TelEchoBot as Tel
       setWaitForRepeat,
       setCountRepeat,
       nameAdapter )
- 
+import Adapter.Tel.TelEntity as Tel
+    ( telKeyb,
+      TelButton(..),
+      TelChat(..),
+      TelKeyboard(..),
+      TelKeyboardPostMessage(..),
+      TelMsg(..),
+      TelUpdate(..),
+      TelUpdates(..),
+      TelUser(..) )

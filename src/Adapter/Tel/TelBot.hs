@@ -19,7 +19,7 @@ import Adapter.Tel.TelEntity
   , TelUpdates(result)
   )
 import Bot.Error
-    ( Error(CannotSendMsgHelp, NotAnswer, NotNewMsg, CannotSendMsg) ) 
+  
 import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
 import Bot.Request 
 
