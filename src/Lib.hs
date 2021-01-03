@@ -223,7 +223,7 @@ proccesInput = do
 
 startBot :: IO ()
 startBot = do
-  -- (_, _) <- 
-  --   concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
-  startTelegramBot "bot.config"
+  (_, _) <- 
+    concurrently (startTelegramBot "bot.config") (startVKBot "bot.config")
+  -- startTelegramBot "bot.config"
   print ("End" :: String )

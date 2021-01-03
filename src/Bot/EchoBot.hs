@@ -24,6 +24,9 @@ import Bot.Message (BotCompatibleMessage(textMsg), BotMsg(..))
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
+    ( Error(NotAnswer, CannotRepeatFalseNumber, NotNewMsg,
+            CantConvertFromData, CantConvertFromArray, CannotRepeatCountSet),
+      errorText )
    
    
 

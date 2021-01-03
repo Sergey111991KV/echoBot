@@ -1,13 +1,26 @@
 module Config.Config  where
 
 import ClassyPrelude
-  
-import Data.Aeson
+    ( ($),
+      Eq((==)),
+      Monad(return),
+      Bool(True),
+      Maybe(..),
+      Either,
+      String,
+      Text,
+      MonadIO(..),
+      (||),
+      fromMaybe,
+      pack,
+      IsMap(lookup) )
+import Data.Aeson ( decode )
 import Control.Monad.Except ( MonadError(throwError) ) 
 import qualified Prelude as P
 import qualified Text.Parsec as Pars
 import Network.HTTP.Client ( newManager )
 import Network.HTTP.Client.TLS ( tlsManagerSettings ) 
+
 import qualified Adapter.Tel.TelMain as Tel
 import qualified Adapter.VK.VKConfig as VKBot
 import qualified Adapter.VK.VKEntity as VKBot

@@ -1,6 +1,19 @@
 module Adapter.Tel.TelEchoBot where
 
 import ClassyPrelude
+    ( ($),
+      Monad(return),
+      Semigroup((<>)),
+      Bool,
+      Integer,
+      Text,
+      MonadIO(liftIO),
+      (.),
+      print,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
 import Data.Has (Has(getter))
 
  
@@ -16,7 +29,7 @@ import Adapter.Tel.TelConfig
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
-import Bot.Request 
+import Bot.Request ( sendJSON' ) 
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg botMsg) = do
@@ -27,26 +40,6 @@ sendMsgKeyboard (BotMsg botMsg) = do
                                                 idM
                                                 "please select repeats count:" 
                                                 (telKeyboard (staticState st)))
-  -- upd <-
-  --   liftIO . Control.Exception.catch (sendKeyboard (telManager $ staticState st) idM url) $ \e -> do
-  --     print (e :: HttpException)
-  --     return "wrong"
-  -- case upd of
-  --   "wrong" -> throwError HttpExceptionBot
-  --   _ -> return ()
-
--- sendKeyboard :: Manager -> Integer -> String -> IO LBS.ByteString
--- sendKeyboard manager chatIdKeyboard sendUrl = do
---   res <-
---     liftIO $ sendRequestWithJsonBody'
---       manager
---       sendUrl
---       (encode $
---        TelKeyboardPostMessage
---          chatIdKeyboard
---          "please select repeats count:"
---          telKeyb)
---   return $ responseBody res
 
 msgHelp :: TelMonad r m => m Text
 msgHelp = do

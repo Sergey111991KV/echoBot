@@ -1,12 +1,29 @@
 module Adapter.Tel.TelBot where
 
 import ClassyPrelude
+    ( ($),
+      Eq((==)),
+      Monad(return),
+      Ord((>)),
+      Show(show),
+      Semigroup((<>)),
+      Integer,
+      Either(..),
+      String,
+      Text,
+      MonadIO(liftIO),
+      (.),
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
    
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
-import Control.Monad.Except
+import Control.Monad.Except ( MonadError(catchError, throwError) )
     
-import Network.HTTP.Client
+import Network.HTTP.Client ( Response(responseBody) )
 
 
 import Adapter.Tel.TelConfig
@@ -18,10 +35,10 @@ import Adapter.Tel.TelEntity
   ( TelUpdate(updateId, updateMsg)
   , TelUpdates(result)
   )
-import Bot.Error
+import Bot.Error ( Error(CannotSendMsg, NotAnswer, NotNewMsg) )
   
 import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
-import Bot.Request 
+import Bot.Request  
 
 
 getNameAdapter :: TelMonad r m => m Text
@@ -87,11 +104,5 @@ sendMsgHelp helpText (BotMsg botMsg) = do
 sendText :: TelMonad r m => Text -> Integer -> String -> m ()
 sendText txtOfMsg chatIdSendMsg sendUrl = do
   st <- asks getter
-  _ <- sendJSONraw' (telManager $ staticState st) sendUrl (buildBody
-       [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])
-  return ()
-  -- liftIO $ sendRequestWithJsonBody
-  --   (telManager $ staticState st)
-  --   sendUrl
-  --   (buildBody
-  --      [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])
+  sendJSON' (telManager $ staticState st) sendUrl (buildJsonObject [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])
+  
