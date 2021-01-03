@@ -55,7 +55,7 @@ default-extensions:
 - FunctionalDependencies
 - RecordWildCards
 - ScopedTypeVariables
-
+- RankNTypes
 
 library:
   when:

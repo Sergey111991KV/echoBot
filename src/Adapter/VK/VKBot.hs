@@ -1,23 +1,7 @@
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-    ( ($),
-      Eq((==)),
-      Monad(return),
-      Show(show),
-      Semigroup((<>)),
-      Integer,
-      Either(..),
-      String,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      (&&),
-      unpack,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
+  
     
 import Network.HTTP.Client
     ( httpLbs, parseRequest, Response(responseBody) ) 
@@ -44,7 +28,7 @@ import Adapter.VK.VKEntity
   , UpdatesVK(UpdatesVK)
   , VKLongPollConfig(key, server, tsLast)
   )
-import Bot.Request ( urlEncodeVars, sendRequestUrl )
+import Bot.Request 
 import Bot.Error
     ( Error(CantConvertFromArray, NotAnswer, CantConvertFromData) )
 import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
@@ -54,30 +38,42 @@ getMsgLast :: VKMonad r m => m BotMsg
 getMsgLast = do
   (State dyn stat) <- getVKConfig 
   stDyn <- readTVarIO dyn
-  let url =
-                "https://" <>
-                server (longConfig  stDyn) <>
-                "?act=a_check&key=" <>
-                key (longConfig  stDyn) <>
-                "&ts=" <>
-                show (tsLast $ longConfig  stDyn) <>
-                "&wait=" <> show (waits  stat)
-  request <- liftIO $ parseRequest url
-  responseLastMsg <- liftIO $ httpLbs request (vkManager stat)
+  let url = "https://" <>  server (longConfig  stDyn)
+ 
+  responseLastMsg <- sendReqTest (vkManager stat) url  [   ("act", "a_check")
+                                                ,   ("key", key (longConfig  stDyn))
+                                                ,   ("ts", show (tsLast $ longConfig  stDyn))
+                                                ,   ("wait", show (waits  stat))
+                                                ]
   caseOfGetMsg responseLastMsg
-   
+
+
+                -- old version
+
+  -- let url =
+  --               "https://" <>
+  --               server (longConfig  stDyn) <>
+  --               "?act=a_check&key=" <>
+  --               key (longConfig  stDyn) <>
+  --               "&ts=" <>
+  --               show (tsLast $ longConfig  stDyn) <>
+  --               "&wait=" <> show (waits  stat)
+  -- request <- liftIO $ parseRequest url
+  -- responseLastMsg <- liftIO $ httpLbs request (vkManager stat)
+  -- caseOfGetMsg responseLastMsg
+
+
+
+
 
 getVKConfig :: VKMonad r m => m  State
 getVKConfig = do
   st <- asks getter
-  let bodyReq =
-        urlEncodeVars
-          [ ("access_token", takeVKToken . accessToken $ staticState st)
-          , ("v", show . takeVKVersion . version $ staticState st)
-          ]
-  let url = getLongPollUrl (staticState st) <> bodyReq
-  request <- liftIO $ parseRequest url
-  responseConfig <- liftIO $ httpLbs request  (vkManager $ staticState st)
+  responseConfig <- sendReqTest   (vkManager $ staticState st) 
+                (getLongPollUrl (staticState st))  
+                [ ("access_token", takeVKToken . accessToken $ staticState st)
+                , ("v", show . takeVKVersion . version $ staticState st)
+                ]
   let upd =
         eitherDecode (responseBody responseConfig) :: Either String ResponseVK
   case upd of
@@ -85,6 +81,27 @@ getVKConfig = do
       throwError NotAnswer
     Right (ResponseVK vkconfigpoll) -> do
       getNewStateLongPool vkconfigpoll
+
+
+              -- old version
+
+--  let bodyReq =
+--         urlEncodeVars
+--           [ ("access_token", takeVKToken . accessToken $ staticState st)
+--           , ("v", show . takeVKVersion . version $ staticState st)
+--           ]
+--   let url = getLongPollUrl (staticState st) <> bodyReq
+--   request <- liftIO $ parseRequest url
+--   responseConfig <- liftIO $ httpLbs request  (vkManager $ staticState st)
+--   let upd =
+--         eitherDecode (responseBody responseConfig) :: Either String ResponseVK
+--   case upd of
+--     Left _ -> do
+--       throwError NotAnswer
+--     Right (ResponseVK vkconfigpoll) -> do
+--       getNewStateLongPool vkconfigpoll
+
+
   
 getNewStateLongPool :: VKMonad r m => VKLongPollConfig -> m State
 getNewStateLongPool newLongPoll = do
@@ -144,14 +161,26 @@ parseValueText _ = "not parse"
 sendMsg :: VKMonad r m => BotMsg -> m ()
 sendMsg (BotMsg msg) =  do
   st <- asks getter 
-  liftIO $ sendRequestUrl
-    (vkManager $ staticState st)
+  sendReq' (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)
        [    ("access_token", takeVKToken $ accessToken (staticState st))
           , ("v", show . takeVKVersion . version $ staticState st)
           , ("user_id", show $ chatId msg)
-          , ("message" , unpack $ textMsg msg)
-        ]
+          , ("message" , unpack $ textMsg msg) ]
+
+          -- old version 
+
+  -- liftIO $ sendRequestUrl
+  --   (vkManager $ staticState st)
+  --   (sendMsgUrl $ staticState st)
+  --      [    ("access_token", takeVKToken $ accessToken (staticState st))
+  --         , ("v", show . takeVKVersion . version $ staticState st)
+  --         , ("user_id", show $ chatId msg)
+  --         , ("message" , unpack $ textMsg msg)
+  --       ]
+
+
+
 
 sendMsgHelp :: VKMonad r m => Text -> BotMsg -> m  ()
 sendMsgHelp helpMess (BotMsg msg) = do

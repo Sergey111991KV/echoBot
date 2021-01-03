@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cd00c971b61ef44893daecf43f37a30ae4c6ab5831c5521ef963ec1254593456
+-- hash: a73952572beb9b867d959232f8baeb735f721aaa128d3d7f39740c24792e9d48
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -52,7 +52,7 @@ library
       Log.LogMonad
   hs-source-dirs:
       src
-  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables
+  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables RankNTypes
   ghc-options: -Wall -Werror
   build-depends:
       aeson
@@ -86,7 +86,7 @@ executable echo-bot2-exe
       Paths_echo_bot2
   hs-source-dirs:
       app
-  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables
+  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables RankNTypes
   ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -122,7 +122,7 @@ test-suite echo-bot2-test
       Paths_echo_bot2
   hs-source-dirs:
       test
-  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables
+  default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables RankNTypes
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

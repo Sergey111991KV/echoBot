@@ -7,7 +7,7 @@ import Data.Has (Has(getter))
 import Control.Monad.Except
     
 import Network.HTTP.Client
-    ( httpLbs, parseRequest, Response(responseBody) ) 
+import qualified Data.ByteString.Lazy.Internal as LBS
 
 import Adapter.Tel.TelConfig
     ( DynamicState(lastMsgId),
@@ -27,15 +27,13 @@ import Bot.Request
 getNameAdapter :: TelMonad r m => m Text
 getNameAdapter = return "Telegram"
 
+
 getMsgLast :: TelMonad r m => m  BotMsg
 getMsgLast = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> getUpdates (staticState st)
   request <- liftIO $ parseRequest url
-
-  -- responseLastMsg' <- liftEither $ sendReq (telManager $ staticState st) request -- Could not deduce 
-
   responseLastMsg <- liftIO $ httpLbs request (telManager $ staticState st)
   let updT = eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
   (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT
@@ -75,6 +73,8 @@ sendMsg (BotMsg botMsg) = do
   let txtOfMsg = textMsg botMsg
       idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
+
+  
   sendText txtOfMsg idM url `catchError`  (\_ -> do
       throwError CannotSendMsg )
 
