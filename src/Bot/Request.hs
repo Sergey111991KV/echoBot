@@ -106,4 +106,3 @@ sendReq manager url urlEncArray =   do
 
 sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()    
 sendReq'  manager url urlEncArray = void $ sendReq manager url urlEncArray 
-
