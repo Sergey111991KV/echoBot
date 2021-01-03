@@ -106,13 +106,13 @@ finalEchoBot = do
       writeLogE $ errorText err <> nameA
       case err of
         NotNewMsg -> 
-          liftIO (threadDelay 500000) >> finalEchoBot
+          liftIO (threadDelay 5000000) >> finalEchoBot
         CantConvertFromData -> 
-          liftIO (threadDelay 500000) >> finalEchoBot
+          liftIO (threadDelay 5000000) >> finalEchoBot
         CantConvertFromArray ->  
-          liftIO (threadDelay 500000) >> finalEchoBot
+          liftIO (threadDelay 1000000) >> finalEchoBot -- hear some problem with delay vk
         CannotRepeatCountSet ->
-          liftIO (threadDelay 500000) >> finalEchoBot 
+          liftIO (threadDelay 5000000) >> finalEchoBot 
         NotAnswer ->
           throwError NotAnswer
         _ -> return ()
