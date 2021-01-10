@@ -101,19 +101,22 @@ finalEchoBot = do
   processBot <-  processEchoBot `catchError` ( return . Left )
   case processBot of
     Right () -> do
-      liftIO (threadDelay 500000) >> finalEchoBot
+      finalEchoBot
     Left err -> do
       writeLogE $ errorText err <> nameA
       case err of
         NotNewMsg -> 
-          liftIO (threadDelay 5000000) >> finalEchoBot
+           liftIO (threadDelay 1000000) >> 
+          finalEchoBot
         CantConvertFromData -> 
-          liftIO (threadDelay 5000000) >> finalEchoBot
+          finalEchoBot
         CantConvertFromArray ->  
-          liftIO (threadDelay 1000000) >> finalEchoBot -- hear some problem with delay vk
+          finalEchoBot 
         CannotRepeatCountSet ->
-          liftIO (threadDelay 5000000) >> finalEchoBot 
+          finalEchoBot 
         NotAnswer ->
           throwError NotAnswer
         _ -> return ()
       
+
+

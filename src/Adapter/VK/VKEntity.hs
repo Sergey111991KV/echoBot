@@ -2,15 +2,7 @@ module Adapter.VK.VKEntity where
 
 
 import ClassyPrelude
-    ( Show,
-      Applicative((<*>)),
-      Generic,
-      Double,
-      Integer,
-      String,
-      Text,
-      (<$>),
-      MonadPlus(mzero) )
+ 
 import Data.Aeson
     ( (.:),
       object,
@@ -24,7 +16,7 @@ import Bot.Message (BotCompatibleMessage(..))
 
 data UpdatesVK =
   UpdatesVK
-    { tsCome :: Integer
+    { tsCome :: Int
     , result :: [Array] 
     }
   deriving (Show, Generic)
@@ -59,7 +51,7 @@ data VKLongPollConfig =
   VKLongPollConfig
     { key :: String
     , server :: String
-    , tsLast :: Integer
+    , tsLast :: Int
     }
   deriving (Show, Generic)
 

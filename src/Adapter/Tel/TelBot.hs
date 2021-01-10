@@ -18,7 +18,7 @@ import ClassyPrelude
       swapTVar,
       atomically,
       readTVarIO )
-   
+import Control.Concurrent ( threadDelay )  
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
 import Control.Monad.Except ( MonadError(catchError, throwError) )
@@ -85,6 +85,7 @@ findLastMsg lastId (x:xs) =
 
 sendMsg :: TelMonad r m => BotMsg -> m  ()
 sendMsg (BotMsg botMsg) = do
+  liftIO (threadDelay 1000000)
   st <- asks getter
   let txtOfMsg = textMsg botMsg
       idM = chatId botMsg

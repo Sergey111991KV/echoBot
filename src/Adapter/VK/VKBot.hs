@@ -6,6 +6,7 @@ import ClassyPrelude
       Monad(return),
       Show(show),
       Semigroup((<>)),
+      Int,
       Integer,
       Either(..),
       String,
@@ -19,6 +20,7 @@ import ClassyPrelude
       atomically,
       readTVarIO )
    
+import Control.Concurrent ( threadDelay )
 import Network.HTTP.Client ( Response(responseBody) ) 
 import Data.Aeson ( eitherDecode, Array, Value(String, Number) )
 import Control.Monad.Except
@@ -101,7 +103,7 @@ caseOfGetMsg responseGetMsg = do
       setNewTs ts
       parseArrays arr
 
-setNewTs :: VKMonad r m => Integer -> m  ()
+setNewTs :: VKMonad r m => Int  -> m  ()
 setNewTs ts = do
   st <- asks getter 
   dynSt <- readTVarIO $ dynamicState st 
@@ -136,6 +138,7 @@ parseValueText _ = "not parse"
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
 sendMsg (BotMsg msg) =  do
+  liftIO (threadDelay 1000000)
   st <- asks getter 
   sendReq' (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)

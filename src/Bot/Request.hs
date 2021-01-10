@@ -2,21 +2,57 @@ module Bot.Request
    where
 
 import ClassyPrelude
+    ( fst,
+      snd,
+      otherwise,
+      ($),
+      Enum(fromEnum, toEnum),
+      Eq((==)),
+      Integral(div, mod),
+      Monad(return),
+      Functor(fmap),
+      Num((+), (-)),
+      Ord((<=)),
+      Char,
+      Int,
+      Either(Right, Left),
+      String,
+      MonadIO(..),
+      (<$>),
+      (.),
+      void,
+      (&&),
+      (||),
+      not,
+      (++),
+      map,
+      elem,
+      foldr,
+      try,
+      IsSequence(partition) )
   
-import Control.Monad.Except
+import Control.Monad.Except ( MonadError(throwError) )
   
 
 import Network.HTTP.Client
+    ( Manager,
+      Response(responseBody),
+      httpLbs,
+      parseRequest,
+      HttpException,
+      Request(requestBody, method, requestHeaders),
+      RequestBody(RequestBodyLBS) )
    
-import Control.Arrow ( ArrowChoice(left) )
+import Control.Arrow ( left ) 
   
-import Data.Aeson 
+import Data.Aeson
+    ( eitherDecode, encode, object, FromJSON, Value(String), ToJSON ) 
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Char (isAlphaNum, isAscii)
 import qualified Data.Text as T
 import qualified Network.HTTP.Types as HTTP
 import qualified Prelude as P
-import Bot.Error 
+import Bot.Error ( Error(HttpExceptionBot, ErrorDecodeData) ) 
 
 
 urlEncode :: String -> String
