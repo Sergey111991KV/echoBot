@@ -16,29 +16,29 @@ import ClassyPrelude
       readTVarIO )
 import Data.Has (Has(getter))
 
- 
-  
+
+
 import Adapter.Tel.TelConfig
     ( StaticState(botUrl, token, textSendMsgTel, telManager,
                   telKeyboard, textMsgHelp),
       DynamicState(waitForRepeat, repeats),
       State(staticState, dynamicState),
       TelMonad )
-  
-   
+
+
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage) )
 import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
-import Bot.Request ( sendJSON' ) 
+import Bot.Request ( sendJSON' )
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg botMsg) = do
   st <- asks getter
   let idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
-  sendJSON' (telManager $ staticState st) url (TelKeyboardPostMessage  
+  sendJSON' (telManager $ staticState st) url (TelKeyboardPostMessage
                                                 idM
-                                                "please select repeats count:" 
+                                                "please select repeats count:"
                                                 (telKeyboard (staticState st)))
 
 msgHelp :: TelMonad r m => m Text
@@ -51,7 +51,7 @@ countRepeat = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   return $ repeats dynSt
-      
+
 
 isWaitForRepeat :: TelMonad r m => m Bool
 isWaitForRepeat = do
@@ -72,7 +72,8 @@ setCountRepeat :: TelMonad r m => Integer -> m ()
 setCountRepeat countRep = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
-  print dynSt
+  print dynSt -- убрать или использовать ф-ии логирования
+              -- аналогично везде где инициализирован логгер
   let newDynSt = dynSt  {repeats = countRep}
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   st' <-  asks getter

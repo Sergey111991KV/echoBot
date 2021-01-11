@@ -19,9 +19,9 @@ import ClassyPrelude
       swapTVar,
       atomically,
       readTVarIO )
-   
+
 import Control.Concurrent ( threadDelay )
-import Network.HTTP.Client ( Response(responseBody) ) 
+import Network.HTTP.Client ( Response(responseBody) )
 import Data.Aeson ( eitherDecode, Array, Value(String, Number) )
 import Control.Monad.Except
     ( MonadError(throwError) )
@@ -44,7 +44,7 @@ import Adapter.VK.VKEntity
   , UpdatesVK(UpdatesVK)
   , VKLongPollConfig(key, server, tsLast)
   )
-import Bot.Request (sendReq, sendReq' ) 
+import Bot.Request (sendReq, sendReq' )
 import Bot.Error
     ( Error(CantConvertFromArray, NotAnswer, CantConvertFromData) )
 import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
@@ -52,10 +52,10 @@ import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
 
 getMsgLast :: VKMonad r m => m BotMsg
 getMsgLast = do
-  (State dyn stat) <- getVKConfig 
+  (State dyn stat) <- getVKConfig
   stDyn <- readTVarIO dyn
   let url = "https://" <>  server (longConfig  stDyn)
- 
+
   responseLastMsg <- sendReq (vkManager stat) url  [   ("act", "a_check")
                                                 ,   ("key", key (longConfig  stDyn))
                                                 ,   ("ts", show (tsLast $ longConfig  stDyn))
@@ -67,8 +67,8 @@ getMsgLast = do
 getVKConfig :: VKMonad r m => m  State
 getVKConfig = do
   st <- asks getter
-  responseConfig <- sendReq   (vkManager $ staticState st) 
-                (getLongPollUrl (staticState st))  
+  responseConfig <- sendReq   (vkManager $ staticState st)
+                (getLongPollUrl (staticState st))
                 [ ("access_token", takeVKToken . accessToken $ staticState st)
                 , ("v", show . takeVKVersion . version $ staticState st)
                 ]
@@ -80,7 +80,7 @@ getVKConfig = do
     Right (ResponseVK vkconfigpoll) -> do
       getNewStateLongPool vkconfigpoll
 
-  
+
 getNewStateLongPool :: VKMonad r m => VKLongPollConfig -> m State
 getNewStateLongPool newLongPoll = do
   st <- asks getter
@@ -88,7 +88,7 @@ getNewStateLongPool newLongPoll = do
   let newDynSt = dynSt {longConfig = newLongPoll}
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   asks getter
-  
+
 caseOfGetMsg ::
      VKMonad r m
   => Response Data.ByteString.Lazy.Internal.ByteString
@@ -105,18 +105,34 @@ caseOfGetMsg responseGetMsg = do
 
 setNewTs :: VKMonad r m => Int  -> m  ()
 setNewTs ts = do
-  st <- asks getter 
-  dynSt <- readTVarIO $ dynamicState st 
+  st <- asks getter
+  dynSt <- readTVarIO $ dynamicState st
   let newDynSt = dynSt {longConfig =  (longConfig dynSt) {tsLast = ts} }
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   return ()
 
+-- использовать Array в чистом виде тоже не рекомендуется, у тебя где то еще это есть
+-- но это не критично
 parseArrays :: VKMonad r m => [Array] -> m BotMsg
 parseArrays [] = do
   throwError CantConvertFromArray
-parseArrays (x:xs) = 
+  -- если список обновлений пустой выкидываем ошибку? почему?
+  -- обновлений может и не быть если никто ничего не написал, это окей.
+  -- т.к. parseArray рекурсивная, то в любом случае когда список заканчивается
+  -- будет вычислятся этот кейс.
+  --
+  -- Т.о. ты пытаешься парсить элементы списка, первый который срабатывает
+  -- (на условии if) ты и берешь за BotMsg. Только проблема в том что это список
+  -- обновлений, обновлений может быть много, если много пользователей то это
+  -- тысячи сообщений.
+  --
+  -- в телеге у тебя аналогично выбрасывает NotNewMsg, здесь, же сам понимаешь,
+  -- CantConvertFromArray на NotNewMsg заменить не получится
+parseArrays (x:xs) =
   if V.length x == 7 &&  (parseValueInt (x V.! 0) == 4) then parseArray x else parseArrays xs
+-- а вообще тут лучше избавиться от рекурсии в пользу какойнибудь функции высшего порядка
 
+-- лучше этому всетаки быть в инстансе FromJSON BotMsg
 parseArray :: VKMonad r m => Array -> m BotMsg
 parseArray arr = do
   let x = parseValueInt $ arr V.! 0
@@ -138,8 +154,9 @@ parseValueText _ = "not parse"
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
 sendMsg (BotMsg msg) =  do
-  liftIO (threadDelay 1000000)
-  st <- asks getter 
+  liftIO (threadDelay 1000000) -- а здесь то задержка зачем?
+  st <- asks getter
+  -- env <- asks $ staticState . getter
   sendReq' (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)
        [    ("access_token", takeVKToken $ accessToken (staticState st))
@@ -150,7 +167,7 @@ sendMsg (BotMsg msg) =  do
 
 sendMsgHelp :: VKMonad r m => Text -> BotMsg -> m  ()
 sendMsgHelp helpMess (BotMsg msg) = do
-  st <- asks getter 
+  st <- asks getter
   sendReq' (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)
        [    ("access_token", takeVKToken $ accessToken (staticState st))
