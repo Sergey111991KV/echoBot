@@ -35,9 +35,9 @@ import Adapter.Tel.TelEntity
   ( TelUpdate(updateId, updateMsg)
   , TelUpdates(result)
   )
-import Bot.Error ( Error(CannotSendMsg, NotAnswer, NotNewMsg) )
+import Bot.Error
   
-import Bot.Message (BotCompatibleMessage(chatId, idMsg, textMsg), BotMsg(..))
+import Bot.Message
 import Bot.Request  
 
 
@@ -55,7 +55,7 @@ getMsgLast = do
   (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT
   let newIdMsg = idMsg msg
   if newIdMsg == lastMsgId dynSt
-    then throwError NotNewMsg
+    then return $ BotMsg  emptyMsg
     else do
       let newState = dynSt {lastMsgId = newIdMsg}
       _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
@@ -69,10 +69,10 @@ processUpdates idStateMsg eitherUpdates = do
     Right upd -> findLastMsg idStateMsg (result upd)
 
 findLastMsg :: TelMonad r m =>  Integer -> [TelUpdate] -> m BotMsg
-findLastMsg _ [] = throwError NotNewMsg
+findLastMsg _ [] = return $ BotMsg emptyMsg
 findLastMsg lastId [x] =
   if lastId > idMsgO
-    then throwError NotNewMsg
+    then return $ BotMsg emptyMsg
     else return $ BotMsg (updateMsg x)
   where
     idMsgO = updateId x

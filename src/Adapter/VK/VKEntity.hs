@@ -12,7 +12,7 @@ import Data.Aeson
       KeyValue((.=)),
       ToJSON(toJSON) )
       
-import Bot.Message (BotCompatibleMessage(..))
+import Bot.Message (BotCompatibleMsg(..))
 
 data UpdatesVK =
   UpdatesVK
@@ -68,10 +68,11 @@ instance FromJSON VKLongPollConfig where
     VKLongPollConfig <$> v .: "key" <*> v .: "server" <*> v .: "ts"
   parseJSON _ = mzero
 
-instance BotCompatibleMessage MessageVK where
+instance BotCompatibleMsg MessageVK where
   textMsg m = textVk m
   chatId m = idFrom m
   idMsg m = tsMess m
+  isEmpty _ = False
 
 data VKPostMessage =
   VKPostMessage

@@ -1,26 +1,13 @@
 module Bot.EchoBot where
 
 import ClassyPrelude
-    ( ($),
-      Monad(return, (>>)),
-      Num((-)),
-      Ord((>), (<=)),
-      Semigroup((<>)),
-      Bool(..),
-      Integer,
-      Maybe(..),
-      Either(..),
-      (.),
-      MonadIO(..),
-      (&&),
-      Text,
-      readMay )
+   
   
 import Control.Monad.Except
     ( MonadError(..) )
 import Control.Concurrent ( threadDelay )
 
-import Bot.Message (BotCompatibleMessage(textMsg), BotMsg(..))
+import Bot.Message 
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
@@ -30,7 +17,7 @@ import Bot.Error
    
    
 
-class (Bot m ,MonadError Error m )=>
+class (Bot m ,MonadError Error m , MonadIO m)=>
       EchoBot m
   where
   msgHelp :: m Text
@@ -41,7 +28,7 @@ class (Bot m ,MonadError Error m )=>
   sendMsgKeyboard :: BotMsg -> m ()
   nameAdapter :: m Text
 
-sendMsgEcho :: (MonadIO m, EchoBot m) => BotMsg -> m ()
+sendMsgEcho :: EchoBot m => BotMsg -> m ()
 sendMsgEcho msg = do
   repCount <- countRepeat
   msgCountRepeat repCount msg
@@ -55,7 +42,7 @@ msgCountRepeat count meesBot = do
       sendMsg meesBot
       msgCountRepeat (count - 1) meesBot
 
-tryGetCountRepeat :: (MonadIO m, EchoBot m) => BotMsg -> m ()
+tryGetCountRepeat :: EchoBot m => BotMsg -> m ()
 tryGetCountRepeat (BotMsg msg) = do
   let resultKeyboardAnswer = (readMay (textMsg msg) :: Maybe Integer)
   case resultKeyboardAnswer of
@@ -68,55 +55,62 @@ tryGetCountRepeat (BotMsg msg) = do
         else 
           throwError CannotRepeatFalseNumber 
 
-handingBotMsg :: (MonadIO m, EchoBot m) => BotMsg -> m  ()
+handingBotMsg ::  EchoBot m => BotMsg -> m  ()
 handingBotMsg (BotMsg msg) = do
-  let txtMsg = textMsg msg
-  isWait <- isWaitForRepeat
-  if isWait
-    then do
-      case txtMsg of
-        "/help" -> do
-          helpMsg <- msgHelp
-          sendMsgHelp helpMsg (BotMsg msg)
-        "/repeat" -> do
-          sendMsgKeyboard (BotMsg msg)
-          setWaitForRepeat False
-        _ -> do
-          sendMsgEcho (BotMsg msg)
+  if isEmpty msg then return () else do
+    let txtMsg = textMsg msg
+    isWait <- isWaitForRepeat
+    if isWait
+      then do
+        case txtMsg of
+          "/help" -> do
+            helpMsg <- msgHelp
+            sendMsgHelp helpMsg (BotMsg msg)
+          "/repeat" -> do
+            sendMsgKeyboard (BotMsg msg)
+            setWaitForRepeat False
+          _ -> do
+            sendMsgEcho (BotMsg msg)
     else do
       tryGetCountRepeat (BotMsg msg)
       setWaitForRepeat True
-     
-processEchoBot :: (MonadIO m, EchoBot m) => m (Either Error ())
-processEchoBot = do
-  msg <- getMsgLast 
-  nameAd <- nameAdapter
-  writeLogD ("getMsgLast " <> nameAd)
-  handingBotMsg msg
-  return $ Right ()
 
-finalEchoBot :: (MonadIO m, EchoBot m) => m  ()
-finalEchoBot = do
-  nameA <- nameAdapter
-  processBot <-  processEchoBot `catchError` ( return . Left )
-  case processBot of
-    Right () -> do
-      finalEchoBot
-    Left err -> do
-      writeLogE $ errorText err <> nameA
-      case err of
-        NotNewMsg -> 
-           liftIO (threadDelay 1000000) >> 
-          finalEchoBot
-        CantConvertFromData -> 
-          finalEchoBot
-        CantConvertFromArray ->  
-          finalEchoBot 
-        CannotRepeatCountSet ->
-          finalEchoBot 
-        NotAnswer ->
-          throwError NotAnswer
-        _ -> return ()
+handingBotMsgArray :: EchoBot m => [BotMsg] -> m  ()
+handingBotMsgArray [] = return ()
+handingBotMsgArray [x] = handingBotMsg x
+handingBotMsgArray (x:xs) = do
+  handingBotMsg x
+  handingBotMsgArray xs
+
+
+
+longPooll :: EchoBot m => m ()
+longPooll = do
+  arr <- getArrayMsgLast
+  handingBotMsgArray arr
+  longPooll
+
+
+callback ::  EchoBot m => m  ()
+callback = do
+  -- nameA <- nameAdapter
+  msg <- getMsgLast
+  handingBotMsg msg 
+  callback
+      -- writeLogE $ errorText err <> nameA
+      -- case err of
+      --   NotNewMsg -> 
+      --      liftIO (threadDelay 1000000) >> 
+      --     callback
+      --   CantConvertFromData -> 
+      --     callback
+      --   CantConvertFromArray ->  
+      --     callback 
+      --   CannotRepeatCountSet ->
+      --     callback 
+      --   NotAnswer ->
+      --     throwError NotAnswer
+      --   _ -> return ()
       
 
 

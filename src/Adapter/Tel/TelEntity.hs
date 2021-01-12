@@ -1,18 +1,7 @@
 module Adapter.Tel.TelEntity where
 
 import ClassyPrelude
-  ( Applicative((<*>))
-  , Bool(True)
-  , Generic
-  , Integer
-  , MonadPlus(mzero)
-  , Show
-  , String
-  , ($)
-  , (<$>)
-  , pack
-  )
-
+  
 import Data.Aeson
   ( FromJSON(parseJSON)
   , KeyValue((.=))
@@ -23,7 +12,7 @@ import Data.Aeson
   , withObject
   )
 
-import Bot.Message (BotCompatibleMessage(..))
+import Bot.Message (BotCompatibleMsg(..))
 
 data TelUpdates =
   TelUpdates
@@ -63,10 +52,11 @@ instance FromJSON TelMsg where
     v .: "text"
   parseJSON _ = mzero
 
-instance BotCompatibleMessage TelMsg where
+instance BotCompatibleMsg TelMsg where
   textMsg m = pack $ text m
   chatId m = chatIdTel $ chat m
   idMsg m = msgId m
+  isEmpty _ = False
 
 data TelUser =
   TelUser

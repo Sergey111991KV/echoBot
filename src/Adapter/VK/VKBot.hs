@@ -1,24 +1,7 @@
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
-    ( ($),
-      Eq((==)),
-      Monad(return),
-      Show(show),
-      Semigroup((<>)),
-      Int,
-      Integer,
-      Either(..),
-      String,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      (&&),
-      unpack,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
+   
    
 import Control.Concurrent ( threadDelay )
 import Network.HTTP.Client ( Response(responseBody) ) 
@@ -47,11 +30,11 @@ import Adapter.VK.VKEntity
 import Bot.Request (sendReq, sendReq' ) 
 import Bot.Error
     ( Error(CantConvertFromArray, NotAnswer, CantConvertFromData) )
-import Bot.Message (BotCompatibleMessage(chatId, textMsg), BotMsg(..))
+import Bot.Message
 
 
-getMsgLast :: VKMonad r m => m BotMsg
-getMsgLast = do
+getArrayMsgLast :: VKMonad r m => m [BotMsg]
+getArrayMsgLast = do
   (State dyn stat) <- getVKConfig 
   stDyn <- readTVarIO dyn
   let url = "https://" <>  server (longConfig  stDyn)
@@ -92,7 +75,7 @@ getNewStateLongPool newLongPoll = do
 caseOfGetMsg ::
      VKMonad r m
   => Response Data.ByteString.Lazy.Internal.ByteString
-  -> m BotMsg
+  -> m [BotMsg]
 caseOfGetMsg responseGetMsg = do
   let upd =
         eitherDecode $ responseBody responseGetMsg :: Either String UpdatesVK
@@ -102,6 +85,8 @@ caseOfGetMsg responseGetMsg = do
     Right (UpdatesVK ts arr) -> do
       setNewTs ts
       parseArrays arr
+      -- messArray <- parseArrays arr
+      -- if null messArray then return $ EmptyMessage "Empty VK Message" 0 0 else return messArray
 
 setNewTs :: VKMonad r m => Int  -> m  ()
 setNewTs ts = do
@@ -111,22 +96,24 @@ setNewTs ts = do
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   return ()
 
-parseArrays :: VKMonad r m => [Array] -> m BotMsg
-parseArrays [] = do
-  throwError CantConvertFromArray
-parseArrays (x:xs) = 
-  if V.length x == 7 &&  (parseValueInt (x V.! 0) == 4) then parseArray x else parseArrays xs
+parseArrays :: VKMonad r m => [Array] -> m [BotMsg]
+parseArrays [] = return []
+parseArrays arrays  = return $ concatMap parseArray arrays
+  
 
-parseArray :: VKMonad r m => Array -> m BotMsg
-parseArray arr = do
-  let x = parseValueInt $ arr V.! 0
-  let y = parseValueInt $ arr V.! 1
-  let e = parseValueInt $ arr V.! 2
-  let r = parseValueInt $ arr V.! 3
-  let t = parseValueInt $ arr V.! 4
-  let i = parseValueText $ arr V.! 5
-  let u = parseValueText $ arr V.! 6
-  return $ BotMsg (MessageVK x y e r t i u)
+parseArray :: Array -> [BotMsg]
+parseArray arr = 
+  if V.length arr == 7 &&  (parseValueInt (arr V.! 0) == 4) then  do
+    let x = parseValueInt $ arr V.! 0
+    let y = parseValueInt $ arr V.! 1
+    let e = parseValueInt $ arr V.! 2
+    let r = parseValueInt $ arr V.! 3
+    let t = parseValueInt $ arr V.! 4
+    let i = parseValueText $ arr V.! 5
+    let u = parseValueText $ arr V.! 6
+    [BotMsg (MessageVK x y e r t i u)]
+  else 
+    []
 
 parseValueInt :: Value -> Integer
 parseValueInt (Number a) = coefficient a

@@ -11,7 +11,7 @@ import Control.Monad.Except
       MonadError(throwError),
       runExceptT )
 
-import Bot.EchoBot ( finalEchoBot, EchoBot(..) )
+import Bot.EchoBot 
 import ClassyPrelude
     ( ($),
       Monad(return),
@@ -89,7 +89,7 @@ instance EchoBot AppTel where
 
 runTelWithConfig :: Tel.State -> IO (Either Error ())
 runTelWithConfig stateTelegram = do
-  runTelegram stateTelegram finalEchoBot
+  runTelegram stateTelegram callback
 
 getConfigTel ::  (MonadIO m, MonadError Error m) =>  FilePath -> m Tel.State
 getConfigTel fp = do
@@ -118,7 +118,8 @@ startTelegramBot fp = do
     Right conf -> do
       resultStart <- runTelWithConfig conf
       case resultStart of
-        Left _ -> do
+        Left e -> do
+          print $ errorText e
           print ("Check connection and put y/n for restart module telegram" :: String)
           restartProsess <- proccesInput
           if restartProsess
@@ -151,7 +152,7 @@ instance Log AppVK where
   writeLogD = writeLog Debug
 
 instance Bot AppVK where
-  getMsgLast = VKBot.getMsgLast
+  getArrayMsgLast = VKBot.getArrayMsgLast
   sendMsg = VKBot.sendMsg
   sendMsgHelp = VKBot.sendMsgHelp
 
@@ -167,7 +168,7 @@ instance EchoBot AppVK where
 
 runVKWithConfig :: VKBot.State -> IO (Either Error ())
 runVKWithConfig stateVK = do
-  runVK stateVK finalEchoBot
+  runVK stateVK longPooll
 
 getConfigVK :: (MonadIO m, MonadError Error m) =>  FilePath -> m  VKBot.State
 getConfigVK fp = do
@@ -199,7 +200,8 @@ startVKBot fp = do
       resultStart <- 
         runVKWithConfig conf
       case resultStart of
-        Left _ -> do
+        Left e -> do
+          print $ errorText e
           print ("Check connection and put y/n for restart module vk" :: String)
           restartProsess <- proccesInput
           if restartProsess

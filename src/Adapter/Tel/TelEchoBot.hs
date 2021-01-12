@@ -28,7 +28,7 @@ import Adapter.Tel.TelConfig
    
 import Adapter.Tel.TelEntity
     ( TelKeyboardPostMessage(TelKeyboardPostMessage) )
-import Bot.Message (BotCompatibleMessage(chatId), BotMsg(..))
+import Bot.Message (BotCompatibleMsg(chatId), BotMsg(..))
 import Bot.Request ( sendJSON' ) 
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()

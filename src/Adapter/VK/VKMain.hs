@@ -3,18 +3,7 @@ module Adapter.VK.VKMain
   ) where
 
 import Adapter.VK.VKBot as VK
-  ( caseOfGetMsg
-  , getMsgLast
-  , getNameAdapter
-  , getNewStateLongPool
-  , parseArray
-  , parseArrays
-  , parseValueInt
-  , parseValueText
-  , sendMsg
-  , sendMsgHelp
-  , setNewTs
-  )
+ 
 import Adapter.VK.VKConfig as VK
     ( VKUrl(..),
       VKVersion(..),

@@ -91,7 +91,7 @@ data EmptyMessage =
     , idMsgE :: Integer
     }
 
-instance BotCompatibleMessage EmptyMessage where
+instance BotCompatibleMsg EmptyMessage where
   textMsg = textE
   chatId = chatIdE
   idMsg = idMsgE

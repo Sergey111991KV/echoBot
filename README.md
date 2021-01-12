@@ -20,8 +20,10 @@
 
 ### All you need to start project:
 
-*       create file "bot.config" like in templates/bot.config.template 
-*       write your option and script to start project, like this:
+        create file "bot.config" like in templates/bot.config.template 
+
+        write your option and script to start project, like this:
+        
                         TelegramToken 889:9jhhjj
                         VKtoken dsfdsfsdfsadfasfasddsfsd345
                         RepeatCount 2

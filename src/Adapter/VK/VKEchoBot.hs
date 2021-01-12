@@ -20,7 +20,7 @@ import Data.Aeson ( encode )
 
 
 import Bot.Message
-    ( BotCompatibleMessage(textMsg, chatId), BotMsg(..) )
+    ( BotCompatibleMsg(textMsg, chatId), BotMsg(..) )
 import Bot.Request ( sendReq' )
 import Adapter.VK.VKConfig
     ( DynamicState(waitForRepeat, repeats),
