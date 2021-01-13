@@ -27,11 +27,11 @@ instance FromJSON UpdatesVK where
 
 data MessageVK =
   MessageVK
-    { typeMessage :: Integer
-    , tsMess :: Integer
-    , flag :: Integer
-    , idFrom :: Integer
-    , unixtime :: Integer
+    { typeMessage :: Int
+    , tsMess :: Int
+    , flag :: Int
+    , idFrom :: Int
+    , unixtime :: Int
     , otherText :: Text
     , textVk :: Text
     }
@@ -39,7 +39,7 @@ data MessageVK =
 
 newtype ResponseVKSend =
   ResponseVKSend
-    { responses :: Integer
+    { responses :: Int
     }
   deriving (Show, Generic)
 
@@ -76,7 +76,7 @@ instance BotCompatibleMsg MessageVK where
 
 data VKPostMessage =
   VKPostMessage
-    { vkUserId :: Integer
+    { vkUserId :: Int
     , vkMsg :: Text
     , vkToken :: String
     , vkVersion :: Double

@@ -1,19 +1,7 @@
 module Adapter.Tel.TelEchoBot where
 
 import ClassyPrelude
-    ( ($),
-      Monad(return),
-      Semigroup((<>)),
-      Bool,
-      Integer,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      print,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
+   
 import Data.Has (Has(getter))
 
  
@@ -46,7 +34,7 @@ msgHelp = do
   st <- asks getter
   return . textMsgHelp $ staticState st
 
-countRepeat :: TelMonad r m => m Integer
+countRepeat :: TelMonad r m => m Int
 countRepeat = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
@@ -68,11 +56,10 @@ setWaitForRepeat boolWaitRepeat = do
   _ <- liftIO $ readTVarIO (dynamicState st) --
   return ()
 
-setCountRepeat :: TelMonad r m => Integer -> m ()
+setCountRepeat :: TelMonad r m => Int -> m ()
 setCountRepeat countRep = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
-  print dynSt
   let newDynSt = dynSt  {repeats = countRep}
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   st' <-  asks getter

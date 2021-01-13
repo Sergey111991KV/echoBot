@@ -27,7 +27,7 @@ instance FromJSON TelUpdates where
 
 data TelUpdate =
   TelUpdate
-    { updateId :: Integer
+    { updateId :: Int
     , updateMsg :: TelMsg
     }
   deriving (Show, Generic)
@@ -38,10 +38,10 @@ instance FromJSON TelUpdate where
 
 data TelMsg =
   TelMsg
-    { msgId :: Integer
+    { msgId :: Int
     , from :: TelUser
     , chat :: TelChat
-    , date :: Integer
+    , date :: Int
     , text :: String
     }
   deriving (Show, Generic)
@@ -60,7 +60,7 @@ instance BotCompatibleMsg TelMsg where
 
 data TelUser =
   TelUser
-    { userId :: Integer
+    { userId :: Int
     , firstName :: String
     }
   deriving (Show, Generic)
@@ -71,7 +71,7 @@ instance FromJSON TelUser where
 
 data TelChat =
   TelChat
-    { chatIdTel :: Integer
+    { chatIdTel :: Int
     , chatFirstName :: String
     , chatType :: String
     }
@@ -84,7 +84,7 @@ instance FromJSON TelChat where
 
 data TelKeyboardPostMessage =
   TelKeyboardPostMessage
-    { tMsgChatId :: Integer
+    { tMsgChatId :: Int
     , tMsgText :: String
     , tKeyboardSend :: TelKeyboard
     }

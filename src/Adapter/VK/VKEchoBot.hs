@@ -1,20 +1,7 @@
 module Adapter.VK.VKEchoBot where
 
 import ClassyPrelude
-    ( ($),
-      Monad(return),
-      Show(show),
-      Bool,
-      Integer,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      unpack,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO,
-      Utf8(decodeUtf8) )
+    
 import Data.Has (Has(getter))
 import Data.Aeson ( encode ) 
 
@@ -48,7 +35,7 @@ msgHelp = do
   st <- asks getter 
   return . helpMsg $  staticState st
 
-countRepeat :: VKMonad r m => m Integer
+countRepeat :: VKMonad r m => m Int
 countRepeat = do
   st <- asks getter 
   dynSt <- readTVarIO $ dynamicState st 
@@ -69,7 +56,7 @@ setWaitForRepeat bl = do
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newStDyn
   return ()
 
-setCountRepeat :: VKMonad r m => Integer -> m ()
+setCountRepeat :: VKMonad r m => Int -> m ()
 setCountRepeat count = do
   st <- asks getter 
   dynSt <- readTVarIO $ dynamicState st 

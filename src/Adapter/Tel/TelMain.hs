@@ -3,14 +3,15 @@ module Adapter.Tel.TelMain
   ) where
 
 import Adapter.Tel.TelBot as Tel
-  ( findLastMsg
-  , getMsgLast
-  , getNameAdapter
-  , processUpdates
-  , sendMsg
-  , sendMsgHelp
-  , sendText
-  )
+    ( getNameAdapter,
+      processUpdates,
+      sendMsg,
+      sendMsgHelp,
+      sendText,
+      findLastMsgs,
+      findMsg,
+      getLastMsgArray )
+  
 import Adapter.Tel.TelConfig as Tel
     ( State(..), TelMonad, StaticState(..), DynamicState(..) ) 
 import Adapter.Tel.TelEchoBot as Tel

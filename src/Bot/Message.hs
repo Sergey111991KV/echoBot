@@ -8,14 +8,14 @@ data BotMsg =
 
 class BotCompatibleMsg a where
   textMsg :: a -> Text
-  chatId :: a -> Integer
-  idMsg :: a -> Integer
+  chatId :: a -> Int
+  idMsg :: a -> Int
   isEmpty :: a -> Bool
 
 data EmptyMsg = EmptyMsg {
   emptyTextMsg ::  Text
-  , emptyChatId ::  Integer
-  , emptyIdMsg ::  Integer
+  , emptyChatId ::  Int
+  , emptyIdMsg ::  Int
 }
 
 instance BotCompatibleMsg EmptyMsg where

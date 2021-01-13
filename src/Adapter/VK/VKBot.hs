@@ -3,7 +3,7 @@ module Adapter.VK.VKBot where
 import ClassyPrelude
    
    
-import Control.Concurrent ( threadDelay )
+
 import Network.HTTP.Client ( Response(responseBody) ) 
 import Data.Aeson ( eitherDecode, Array, Value(String, Number) )
 import Control.Monad.Except
@@ -33,8 +33,8 @@ import Bot.Error
 import Bot.Message
 
 
-getArrayMsgLast :: VKMonad r m => m [BotMsg]
-getArrayMsgLast = do
+getLastMsgArray :: VKMonad r m => m [BotMsg]
+getLastMsgArray = do
   (State dyn stat) <- getVKConfig 
   stDyn <- readTVarIO dyn
   let url = "https://" <>  server (longConfig  stDyn)
@@ -85,8 +85,7 @@ caseOfGetMsg responseGetMsg = do
     Right (UpdatesVK ts arr) -> do
       setNewTs ts
       parseArrays arr
-      -- messArray <- parseArrays arr
-      -- if null messArray then return $ EmptyMessage "Empty VK Message" 0 0 else return messArray
+    
 
 setNewTs :: VKMonad r m => Int  -> m  ()
 setNewTs ts = do
@@ -115,8 +114,8 @@ parseArray arr =
   else 
     []
 
-parseValueInt :: Value -> Integer
-parseValueInt (Number a) = coefficient a
+parseValueInt :: Value -> Int
+parseValueInt (Number a) = fromInteger $ coefficient a
 parseValueInt _ = 0
 
 parseValueText :: Value -> Text
@@ -125,7 +124,6 @@ parseValueText _ = "not parse"
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
 sendMsg (BotMsg msg) =  do
-  liftIO (threadDelay 1000000)
   st <- asks getter 
   sendReq' (vkManager $ staticState st)
     (sendMsgUrl $ staticState st)

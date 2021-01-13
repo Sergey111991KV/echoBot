@@ -2,17 +2,7 @@ module Adapter.VK.VKConfig where
 
 import Adapter.VK.VKEntity (VKLongPollConfig)
 import ClassyPrelude
-  ( Bool
-  , Double
-  , Generic
-  , Integer
-  , MonadIO
-  , MonadReader
-  , Show
-  , String
-  , TVar
-  , Text
-  )
+  
 import Data.Aeson (FromJSON)
 import Data.Has (Has)
 import Control.Monad.Except ( MonadError )
@@ -35,9 +25,9 @@ data DynamicState =
   DynamicState
     { 
       longConfig :: VKLongPollConfig
-    , lastMsgId :: Integer
+    , lastMsgId :: Int
     , waitForRepeat :: Bool
-    , repeats :: Integer
+    , repeats :: Int
     }
   deriving (Show, Generic)
 
@@ -48,7 +38,7 @@ data StaticState =
       accessToken :: VKToken
     , helpMsg :: Text
     , version :: VKVersion
-    , waits :: Integer
+    , waits :: Int
     , getLongPollUrl :: String
     , getUpdatesUrl :: String
     , sendMsgUrl :: String

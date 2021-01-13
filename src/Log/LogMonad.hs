@@ -1,10 +1,9 @@
 module Log.LogMonad where
 
-import ClassyPrelude (Monad, Text)
-
+import ClassyPrelude 
 import Log.LogEntity (LogWrite)
 
-class (Monad m) =>
+class (Monad m, MonadIO m) =>
       Log m
   where
   writeLog :: LogWrite -> Text -> m ()

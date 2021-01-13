@@ -1,23 +1,7 @@
 module Adapter.Tel.TelBot where
 
 import ClassyPrelude
-    ( ($),
-      Eq((==)),
-      Monad(return),
-      Ord((>)),
-      Show(show),
-      Semigroup((<>)),
-      Integer,
-      Either(..),
-      String,
-      Text,
-      MonadIO(liftIO),
-      (.),
-      unpack,
-      asks,
-      swapTVar,
-      atomically,
-      readTVarIO )
+    
 import Control.Concurrent ( threadDelay )  
 import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
@@ -45,43 +29,41 @@ getNameAdapter :: TelMonad r m => m Text
 getNameAdapter = return "Telegram"
 
 
-getMsgLast :: TelMonad r m => m  BotMsg
-getMsgLast = do
+getLastMsgArray :: TelMonad r m => m  [BotMsg]
+getLastMsgArray = do
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> getUpdates (staticState st)
   responseLastMsg <- sendReq (telManager $ staticState st) url []
   let updT = eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
-  (BotMsg msg) <- processUpdates (lastMsgId dynSt) updT
-  let newIdMsg = idMsg msg
-  if newIdMsg == lastMsgId dynSt
-    then return $ BotMsg  emptyMsg
-    else do
-      let newState = dynSt {lastMsgId = newIdMsg}
-      _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
-      return (BotMsg msg)
+  arrMsg <- processUpdates (lastMsgId dynSt) updT
+  newIdMsg <-  findUpdTel arrMsg
+  let newState = dynSt {lastMsgId = newIdMsg}
+  _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
+  return arrMsg
 
+findUpdTel :: TelMonad r m => [BotMsg] -> m Int
+findUpdTel = undefined
 
-processUpdates :: TelMonad r m => Integer -> Either String TelUpdates -> m BotMsg
+processUpdates :: TelMonad r m => Int -> Either String TelUpdates -> m [BotMsg]
 processUpdates idStateMsg eitherUpdates = do
   case eitherUpdates of
     Left _ -> throwError NotAnswer
-    Right upd -> findLastMsg idStateMsg (result upd)
+    Right upd -> do
+      findLastMsgs idStateMsg (result upd)
+      
 
-findLastMsg :: TelMonad r m =>  Integer -> [TelUpdate] -> m BotMsg
-findLastMsg _ [] = return $ BotMsg emptyMsg
-findLastMsg lastId [x] =
-  if lastId > idMsgO
-    then return $ BotMsg emptyMsg
-    else return $ BotMsg (updateMsg x)
-  where
-    idMsgO = updateId x
-findLastMsg lastId (x:xs) =
-  if lastId > idMsgA
-    then findLastMsg lastId xs
-    else findLastMsg idMsgA (xs <> [x])
-  where
-    idMsgA = updateId x
+findLastMsgs :: TelMonad r m =>  Int -> [TelUpdate] -> m [BotMsg]
+findLastMsgs _ [] = return []
+findLastMsgs lastId arr = do
+  return $ mapMaybe (findMsg lastId)  arr
+
+findMsg :: Int -> TelUpdate ->   Maybe BotMsg
+findMsg lastId telUpd = if lastId > idMsgO
+                            then  Just $ BotMsg (updateMsg telUpd) else Nothing
+                        where
+                           idMsgO = updateId telUpd
+
 
 sendMsg :: TelMonad r m => BotMsg -> m  ()
 sendMsg (BotMsg botMsg) = do
@@ -90,8 +72,6 @@ sendMsg (BotMsg botMsg) = do
   let txtOfMsg = textMsg botMsg
       idM = chatId botMsg
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
-
-  
   sendText txtOfMsg idM url `catchError`  (\_ -> do
       throwError CannotSendMsg )
 
@@ -102,7 +82,7 @@ sendMsgHelp helpText (BotMsg botMsg) = do
   let url = botUrl (staticState st) <> token (staticState st) <> "/" <> textSendMsgTel (staticState st)
   sendText helpText idM url 
 
-sendText :: TelMonad r m => Text -> Integer -> String -> m ()
+sendText :: TelMonad r m => Text -> Int -> String -> m ()
 sendText txtOfMsg chatIdSendMsg sendUrl = do
   st <- asks getter
   sendJSON' (telManager $ staticState st) sendUrl (buildJsonObject [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])

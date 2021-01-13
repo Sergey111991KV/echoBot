@@ -62,6 +62,7 @@ runTelegram :: Tel.State -> AppTel a -> IO (Either Error a)
 runTelegram state app = do
   runExceptT $ runReaderT  (unAppTel  app) state
 
+instance Log IO
 
 instance Log AppTel where
   writeLog l txt = do
@@ -73,7 +74,7 @@ instance Log AppTel where
   writeLogD = writeLog Debug
 
 instance Bot AppTel where
-  getMsgLast = Tel.getMsgLast
+  getLastMsgArray = Tel.getLastMsgArray
   sendMsg = Tel.sendMsg
   sendMsgHelp = Tel.sendMsgHelp
  
@@ -89,7 +90,7 @@ instance EchoBot AppTel where
 
 runTelWithConfig :: Tel.State -> IO (Either Error ())
 runTelWithConfig stateTelegram = do
-  runTelegram stateTelegram callback
+  runTelegram stateTelegram echoBot
 
 getConfigTel ::  (MonadIO m, MonadError Error m) =>  FilePath -> m Tel.State
 getConfigTel fp = do
@@ -119,7 +120,7 @@ startTelegramBot fp = do
       resultStart <- runTelWithConfig conf
       case resultStart of
         Left e -> do
-          print $ errorText e
+          writeLogE $ errorText e
           print ("Check connection and put y/n for restart module telegram" :: String)
           restartProsess <- proccesInput
           if restartProsess
@@ -152,7 +153,7 @@ instance Log AppVK where
   writeLogD = writeLog Debug
 
 instance Bot AppVK where
-  getArrayMsgLast = VKBot.getArrayMsgLast
+  getLastMsgArray = VKBot.getLastMsgArray
   sendMsg = VKBot.sendMsg
   sendMsgHelp = VKBot.sendMsgHelp
 
@@ -168,7 +169,7 @@ instance EchoBot AppVK where
 
 runVKWithConfig :: VKBot.State -> IO (Either Error ())
 runVKWithConfig stateVK = do
-  runVK stateVK longPooll
+  runVK stateVK echoBot
 
 getConfigVK :: (MonadIO m, MonadError Error m) =>  FilePath -> m  VKBot.State
 getConfigVK fp = do

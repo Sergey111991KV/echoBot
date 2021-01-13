@@ -3,16 +3,27 @@ module Adapter.VK.VKMain
   ) where
 
 import Adapter.VK.VKBot as VK
- 
+    ( caseOfGetMsg,
+      getNameAdapter,
+      getNewStateLongPool,
+      getVKConfig,
+      parseArray,
+      parseArrays,
+      parseValueInt,
+      parseValueText,
+      sendMsg,
+      sendMsgHelp,
+      setNewTs,
+      getLastMsgArray )
 import Adapter.VK.VKConfig as VK
-    ( VKUrl(..),
-      VKVersion(..),
-      VKToken(..),
+    ( DynamicState(..),
       State(..),
-      VKMonad,
       StaticState(..),
-      DynamicState(..) )
-  
+      VKMonad,
+      VKToken(..),
+      VKUrl(..),
+      VKVersion(..) )
+   
 import Adapter.VK.VKEchoBot as VK
     ( sendMsgKeyboard,
       msgHelp,

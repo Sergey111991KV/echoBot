@@ -1,15 +1,7 @@
 module Adapter.Tel.TelConfig where
 
 import ClassyPrelude
-    ( Show,
-      Generic,
-      Bool,
-      Integer,
-      String,
-      MonadIO,
-      TVar,
-      Text,
-      MonadReader )
+    
 
 import Control.Monad.Except ( MonadError )
 import Data.Has (Has)
@@ -31,8 +23,8 @@ data State =
 data DynamicState =
   DynamicState
     { 
-      repeats :: Integer
-    , lastMsgId :: Integer
+      repeats :: Int
+    , lastMsgId :: Int
     , waitForRepeat :: Bool
     }
   deriving (Show, Generic)

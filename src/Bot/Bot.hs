@@ -10,8 +10,7 @@ import Bot.Error ( Error )
 class (Log m, MonadError Error m ) =>
       Bot m
   where
-  getMsgLast :: m BotMsg
-  getArrayMsgLast :: m [BotMsg]
+  getLastMsgArray :: m [BotMsg]
   sendMsg :: BotMsg -> m ()
   sendMsgHelp :: Text -> BotMsg -> m ()
 
