@@ -10,19 +10,19 @@ class BotCompatibleMsg a where
   textMsg :: a -> Text
   chatId :: a -> Int
   idMsg :: a -> Int
-  isEmpty :: a -> Bool
+--   isEmpty :: a -> Bool
 
-data EmptyMsg = EmptyMsg {
-  emptyTextMsg ::  Text
-  , emptyChatId ::  Int
-  , emptyIdMsg ::  Int
-}
+-- data EmptyMsg = EmptyMsg {
+--   emptyTextMsg ::  Text
+--   , emptyChatId ::  Int
+--   , emptyIdMsg ::  Int
+-- }
 
-instance BotCompatibleMsg EmptyMsg where
-    textMsg = emptyTextMsg
-    chatId = emptyChatId
-    idMsg = emptyIdMsg
-    isEmpty _ = True
+-- instance BotCompatibleMsg EmptyMsg where
+--     textMsg = emptyTextMsg
+--     chatId = emptyChatId
+--     idMsg = emptyIdMsg
+--     isEmpty _ = True
 
-emptyMsg :: EmptyMsg
-emptyMsg = EmptyMsg "" 0 0
+-- emptyMsg :: EmptyMsg
+-- emptyMsg = EmptyMsg "" 0 0

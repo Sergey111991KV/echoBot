@@ -72,7 +72,7 @@ instance BotCompatibleMsg MessageVK where
   textMsg m = textVk m
   chatId m = idFrom m
   idMsg m = tsMess m
-  isEmpty _ = False
+  -- isEmpty _ = False
 
 data VKPostMessage =
   VKPostMessage

@@ -56,7 +56,7 @@ instance BotCompatibleMsg TelMsg where
   textMsg m = pack $ text m
   chatId m = chatIdTel $ chat m
   idMsg m = msgId m
-  isEmpty _ = False
+  -- isEmpty _ = False
 
 data TelUser =
   TelUser

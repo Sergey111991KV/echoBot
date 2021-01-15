@@ -1,18 +1,6 @@
 module Bot.EchoBot where
 
 import ClassyPrelude
-    ( ($),
-      Monad(return),
-      Num((-)),
-      Ord((>), (<=)),
-      Semigroup((<>)),
-      Bool(..),
-      Integer,
-      Maybe(..),
-      Text,
-      MonadIO,
-      (&&),
-      readMay )
    
   
 import Control.Monad.Except
@@ -20,22 +8,23 @@ import Control.Monad.Except
 import Control.Concurrent 
 
 import Bot.Message
-    ( BotMsg(..), BotCompatibleMsg(textMsg, isEmpty) ) 
+   
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
-  
+import Bot.Chats
 
 class (Bot m ,MonadError Error m , MonadIO m)=>
       EchoBot m
   where
   msgHelp :: m Text
-  countRepeat :: m Integer
+  countRepeat :: m Int
   isWaitForRepeat :: m Bool
   setWaitForRepeat :: Bool -> m ()
-  setCountRepeat :: Integer -> m ()
+  setCountRepeat :: Int -> m ()
   sendMsgKeyboard :: BotMsg -> m ()
   nameAdapter :: m Text
+  getChats :: m [Chat]
 
 sendMsgEcho :: EchoBot m => BotMsg -> m ()
 sendMsgEcho msg = do
@@ -44,7 +33,7 @@ sendMsgEcho msg = do
   repCount <- countRepeat
   msgCountRepeat repCount msg
 
-msgCountRepeat :: EchoBot m => Integer -> BotMsg -> m  ()
+msgCountRepeat :: EchoBot m => Int -> BotMsg -> m  ()
 msgCountRepeat count meesBot = do
   nameAd <- nameAdapter
   writeLogD $ "msgCountRepeat" <> nameAd
@@ -59,7 +48,7 @@ tryGetCountRepeat :: EchoBot m => BotMsg -> m ()
 tryGetCountRepeat (BotMsg msg) = do
   nameAd <- nameAdapter
   writeLogD $ "tryGetCountRepeat" <> nameAd
-  let resultKeyboardAnswer = (readMay (textMsg msg) :: Maybe Integer)
+  let resultKeyboardAnswer = (readMay (textMsg msg) :: Maybe Int)
   case resultKeyboardAnswer of
     Nothing -> 
       throwError CannotRepeatCountSet
@@ -72,7 +61,6 @@ tryGetCountRepeat (BotMsg msg) = do
 
 handingBotMsg ::  EchoBot m => BotMsg -> m  ()
 handingBotMsg (BotMsg msg) = do
-  if isEmpty msg then return () else do
     let txtMsg = textMsg msg
     isWait <- isWaitForRepeat
     if isWait
@@ -90,7 +78,7 @@ handingBotMsg (BotMsg msg) = do
       tryGetCountRepeat (BotMsg msg)
       setWaitForRepeat True
 
-handingBotMsgArray :: EchoBot m => [BotMsg] -> m  ()
+handingBotMsgArray :: EchoBot m =>  [BotMsg] -> m  ()
 handingBotMsgArray [] = return ()
 handingBotMsgArray [x] = handingBotMsg x
 handingBotMsgArray (x:xs) = do
