@@ -12,7 +12,7 @@ import Data.Aeson
   , withObject
   )
 
-import Bot.Message (BotCompatibleMsg(..))
+import Bot.Message
 
 data TelUpdates =
   TelUpdates
@@ -56,7 +56,7 @@ instance BotCompatibleMsg TelMsg where
   textMsg m = pack $ text m
   chatId m = chatIdTel $ chat m
   idMsg m = msgId m
-  -- isEmpty _ = False
+
 
 data TelUser =
   TelUser

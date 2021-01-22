@@ -29,7 +29,7 @@ import Adapter.VK.VKEntity
   )
 import Bot.Request (sendReq, sendReq' ) 
 import Bot.Error
-    ( Error(CantConvertFromArray, NotAnswer, CantConvertFromData) )
+  
 import Bot.Message
 
 
@@ -38,7 +38,6 @@ getLastMsgArray = do
   (State dyn stat) <- getVKConfig 
   stDyn <- readTVarIO dyn
   let url = "https://" <>  server (longConfig  stDyn)
- 
   responseLastMsg <- sendReq (vkManager stat) url  [   ("act", "a_check")
                                                 ,   ("key", key (longConfig  stDyn))
                                                 ,   ("ts", show (tsLast $ longConfig  stDyn))

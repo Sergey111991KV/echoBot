@@ -8,8 +8,6 @@ import Adapter.Tel.TelBot as Tel
       sendMsg,
       sendMsgHelp,
       sendText,
-      findLastMsgs,
-      findMsg,
       getLastMsgArray )
   
 import Adapter.Tel.TelConfig as Tel

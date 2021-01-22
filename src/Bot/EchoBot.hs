@@ -12,7 +12,7 @@ import Bot.Message
 import Log.ImportLog (Log(writeLogD, writeLogE))
 import Bot.Bot ( Bot(..) ) 
 import Bot.Error
-import Bot.Chats
+
 
 class (Bot m ,MonadError Error m , MonadIO m)=>
       EchoBot m
@@ -24,7 +24,6 @@ class (Bot m ,MonadError Error m , MonadIO m)=>
   setCountRepeat :: Int -> m ()
   sendMsgKeyboard :: BotMsg -> m ()
   nameAdapter :: m Text
-  getChats :: m [Chat]
 
 sendMsgEcho :: EchoBot m => BotMsg -> m ()
 sendMsgEcho msg = do

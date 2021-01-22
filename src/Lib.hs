@@ -11,7 +11,7 @@ import Control.Monad.Except
       MonadError(throwError),
       runExceptT )
 
-import Bot.EchoBot 
+import Bot.EchoBot ( EchoBot(..), echoBot ) 
 import ClassyPrelude
     ( ($),
       Monad(return),
@@ -62,7 +62,6 @@ runTelegram :: Tel.State -> AppTel a -> IO (Either Error a)
 runTelegram state app = do
   runExceptT $ runReaderT  (unAppTel  app) state
 
-instance Log IO
 
 instance Log AppTel where
   writeLog l txt = do
@@ -119,8 +118,7 @@ startTelegramBot fp = do
     Right conf -> do
       resultStart <- runTelWithConfig conf
       case resultStart of
-        Left e -> do
-          writeLogE $ errorText e
+        Left _ -> do
           print ("Check connection and put y/n for restart module telegram" :: String)
           restartProsess <- proccesInput
           if restartProsess
@@ -201,8 +199,7 @@ startVKBot fp = do
       resultStart <- 
         runVKWithConfig conf
       case resultStart of
-        Left e -> do
-          print $ errorText e
+        Left _ -> do
           print ("Check connection and put y/n for restart module vk" :: String)
           restartProsess <- proccesInput
           if restartProsess
