@@ -1,6 +1,20 @@
 module Log.Log where
 
 import ClassyPrelude
+  ( Bool
+  , FilePath
+  , IO
+  , LazySequence(toStrict)
+  , Ord((>=))
+  , Semigroup((<>))
+  , Text
+  , UTCTime
+  , ($)
+  , (.)
+  , putStrLn
+  , unpack
+  , when
+  )
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -20,16 +34,13 @@ writeInTerminal :: Bool -> Text -> IO ()
 writeInTerminal bl txtInLog = do
   when bl $ ClassyPrelude.putStrLn txtInLog
 
-writFileHandler :: UTCTime ->  FilePath -> LogWrite -> LogWrite -> Bool -> Text -> IO ()
+writFileHandler ::
+     UTCTime -> FilePath -> LogWrite -> LogWrite -> Bool -> Text -> IO ()
 writFileHandler dat lF logConf logToCompare bl txtInLog = do
-  writeInLogFile
-    lF
-    (logConf >= logToCompare)
-    (txtInLog <> " " <> d)
+  writeInLogFile lF (logConf >= logToCompare) (txtInLog <> " " <> d)
   writeInTerminal bl txtInLog
-    where
-      d = toStrict $ formatISODateTime dat
-
+  where
+    d = toStrict $ formatISODateTime dat
 
 writeLogHandler :: UTCTime -> LogConfig -> LogWrite -> Text -> IO ()
 writeLogHandler dat (LogConfig lf logLev logBool) loging =

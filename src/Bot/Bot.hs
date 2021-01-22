@@ -1,19 +1,14 @@
 module Bot.Bot where
 
-
+import Bot.Error (Error)
 import Bot.Message (BotMsg)
-import ClassyPrelude ( Text ) 
-import Log.ImportLog ( Log ) 
-import Control.Monad.Except ( MonadError )
-import Bot.Error ( Error )
+import ClassyPrelude (Text)
+import Control.Monad.Except (MonadError)
+import Log.ImportLog (Log)
 
-class (Log m, MonadError Error m ) =>
+class (Log m, MonadError Error m) =>
       Bot m
   where
   getLastMsgArray :: m [BotMsg]
   sendMsg :: BotMsg -> m ()
   sendMsgHelp :: Text -> BotMsg -> m ()
-
-
-
-

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a73952572beb9b867d959232f8baeb735f721aaa128d3d7f39740c24792e9d48
+-- hash: 9f31517c0d77a3e4345983e4859cf0f613b51a4e43dda115e49a23533e423859
 
 name:           echo-bot2
 version:        0.1.0.0
@@ -55,7 +55,8 @@ library
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables RankNTypes
   ghc-options: -Wall -Werror
   build-depends:
-      aeson
+      QuickCheck ==2.*
+    , aeson
     , async
     , base >=4.7 && <5
     , bytestring
@@ -89,7 +90,8 @@ executable echo-bot2-exe
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables RankNTypes
   ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      QuickCheck ==2.*
+    , aeson
     , async
     , base >=4.7 && <5
     , bytestring
@@ -125,7 +127,8 @@ test-suite echo-bot2-test
   default-extensions: NoImplicitPrelude OverloadedStrings MultiParamTypeClasses ConstraintKinds FlexibleContexts DeriveGeneric GeneralizedNewtypeDeriving FlexibleInstances ExistentialQuantification RankNTypes FunctionalDependencies RecordWildCards ScopedTypeVariables RankNTypes
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      QuickCheck ==2.*
+    , aeson
     , async
     , base >=4.7 && <5
     , bytestring

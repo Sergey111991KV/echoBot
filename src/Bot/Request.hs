@@ -1,59 +1,64 @@
-module Bot.Request
-   where
+module Bot.Request where
 
 import ClassyPrelude
-    ( fst,
-      snd,
-      otherwise,
-      ($),
-      Enum(fromEnum, toEnum),
-      Eq((==)),
-      Integral(div, mod),
-      Monad(return),
-      Functor(fmap),
-      Num((+), (-)),
-      Ord((<=)),
-      Char,
-      Int,
-      Either(Right, Left),
-      String,
-      MonadIO(..),
-      (<$>),
-      (.),
-      void,
-      (&&),
-      (||),
-      not,
-      (++),
-      map,
-      elem,
-      foldr,
-      try,
-      IsSequence(partition) )
-  
-import Control.Monad.Except ( MonadError(throwError) )
-  
+  ( Char
+  , Either(Left, Right)
+  , Enum(fromEnum, toEnum)
+  , Eq((==))
+  , Functor(fmap)
+  , Int
+  , Integral(div, mod)
+  , IsSequence(partition)
+  , Monad(return)
+  , MonadIO(..)
+  , Num((+), (-))
+  , Ord((<=))
+  , String
+  , ($)
+  , (&&)
+  , (++)
+  , (.)
+  , (<$>)
+  , (||)
+  , elem
+  , foldr
+  , fst
+  , map
+  , not
+  , otherwise
+  , snd
+  , try
+  , void
+  )
+
+import Control.Monad.Except (MonadError(throwError))
 
 import Network.HTTP.Client
-    ( Manager,
-      Response(responseBody),
-      httpLbs,
-      parseRequest,
-      HttpException,
-      Request(requestBody, method, requestHeaders),
-      RequestBody(RequestBodyLBS) )
-   
-import Control.Arrow ( left ) 
-  
+  ( HttpException
+  , Manager
+  , Request(method, requestBody, requestHeaders)
+  , RequestBody(RequestBodyLBS)
+  , Response(responseBody)
+  , httpLbs
+  , parseRequest
+  )
+
+import Control.Arrow (left)
+
+import Bot.Error (Error(ErrorDecodeData, HttpExceptionBot))
 import Data.Aeson
-    ( eitherDecode, encode, object, FromJSON, Value(String), ToJSON ) 
+  ( FromJSON
+  , ToJSON
+  , Value(String)
+  , eitherDecode
+  , encode
+  , object
+  )
 import qualified Data.ByteString.Lazy.Internal as LBS
 import Data.Char (isAlphaNum, isAscii)
 import qualified Data.Text as T
 import qualified Network.HTTP.Types as HTTP
 import qualified Prelude as P
-import Bot.Error ( Error(HttpExceptionBot, ErrorDecodeData) ) 
-
 
 urlEncode :: String -> String
 urlEncode [] = []
@@ -88,57 +93,76 @@ urlEncodeVars ((n, v):t) =
 urlEncodeVars [] = []
 
 buildBody :: [(String, String)] -> LBS.ByteString
-buildBody =
-  encode . object . fmap (\(a, b) -> (T.pack a, String (T.pack b)))
+buildBody = encode . object . fmap (\(a, b) -> (T.pack a, String (T.pack b)))
 
 buildJsonObject :: [(String, String)] -> Value
-buildJsonObject =
-  object . fmap (\(a, b) -> (T.pack a, String (T.pack b)))
+buildJsonObject = object . fmap (\(a, b) -> (T.pack a, String (T.pack b)))
 
-sendJSON :: (FromJSON a, ToJSON b, MonadError Error m, MonadIO m) => Manager -> String ->  b -> m a
+sendJSON ::
+     (FromJSON a, ToJSON b, MonadError Error m, MonadIO m)
+  => Manager
+  -> String
+  -> b
+  -> m a
 sendJSON manager url objToDecode = do
-  resp <- sendJSONraw manager url objToDecode 
+  resp <- sendJSONraw manager url objToDecode
   let respDec = eitherDecode $ responseBody resp
   case respDec of
-    Left  _ -> throwError ErrorDecodeData
-    Right objFromDecode -> return  objFromDecode
+    Left _ -> throwError ErrorDecodeData
+    Right objFromDecode -> return objFromDecode
 
+sendJSON' ::
+     (MonadError Error m, MonadIO m, ToJSON b) => Manager -> String -> b -> m ()
+sendJSON' manager url objToDecode = void $ sendJSONraw manager url objToDecode
 
-sendJSON' :: (MonadError Error m, MonadIO m, ToJSON b) => Manager -> String -> b -> m ()
-sendJSON' manager url objToDecode  = void $ sendJSONraw manager url objToDecode
-
-sendJSONraw :: (MonadError Error m, MonadIO m, ToJSON b) => Manager -> String -> b -> m (Response LBS.ByteString)
+sendJSONraw ::
+     (MonadError Error m, MonadIO m, ToJSON b)
+  => Manager
+  -> String
+  -> b
+  -> m (Response LBS.ByteString)
 sendJSONraw manager url obj = do
   initReq <- liftIO $ parseRequest url
-  let req = initReq
-            { method = "POST"
-            , requestBody =  RequestBodyLBS $ encode obj
-            , requestHeaders = [(HTTP.hContentType, "application/json")]
-            }
-  resp <- liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
+  let req =
+        initReq
+          { method = "POST"
+          , requestBody = RequestBodyLBS $ encode obj
+          , requestHeaders = [(HTTP.hContentType, "application/json")]
+          }
+  resp <- liftIO $ left httpToMyExept <$> try (httpLbs req manager)
   case resp of
     Left e -> throwError e
     Right rest -> return rest
   where
-      httpToMyExept (_ :: HttpException) = HttpExceptionBot
+    httpToMyExept (_ :: HttpException) = HttpExceptionBot
 
-
-sendReq :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m (Response LBS.ByteString)
-sendReq manager url urlEncArray =   do
+sendReq ::
+     (MonadError Error m, MonadIO m)
+  => Manager
+  -> String
+  -> [(String, String)]
+  -> m (Response LBS.ByteString)
+sendReq manager url urlEncArray = do
   let optionUrl = urlEncodeVars urlEncArray
   let mainUrl = url ++ "?" ++ optionUrl
   initReq <- liftIO $ parseRequest mainUrl
-  let req = initReq
-            { method = "POST"
-            , requestHeaders = [(HTTP.hContentType, "application/x-www-form-urlencoded")] 
-            }
-  resp <- liftIO  $ left httpToMyExept <$> try (httpLbs req manager)
+  let req =
+        initReq
+          { method = "POST"
+          , requestHeaders =
+              [(HTTP.hContentType, "application/x-www-form-urlencoded")]
+          }
+  resp <- liftIO $ left httpToMyExept <$> try (httpLbs req manager)
   case resp of
     Left e -> throwError e
     Right rest -> return rest
   where
-      httpToMyExept (_ :: HttpException) = HttpExceptionBot
+    httpToMyExept (_ :: HttpException) = HttpExceptionBot
 
-
-sendReq' :: (MonadError Error m, MonadIO m) => Manager -> String -> [(String, String)] -> m ()    
-sendReq'  manager url urlEncArray = void $ sendReq manager url urlEncArray 
+sendReq' ::
+     (MonadError Error m, MonadIO m)
+  => Manager
+  -> String
+  -> [(String, String)]
+  -> m ()
+sendReq' manager url urlEncArray = void $ sendReq manager url urlEncArray

@@ -3,30 +3,37 @@ module Adapter.Tel.TelMain
   ) where
 
 import Adapter.Tel.TelBot as Tel
-    ( getNameAdapter,
-      processUpdates,
-      sendMsg,
-      sendMsgHelp,
-      sendText,
-      getLastMsgArray )
-  
+  ( getLastMsgArray
+  , getNameAdapter
+  , processUpdates
+  , sendMsg
+  , sendMsgHelp
+  , sendText
+  )
+
 import Adapter.Tel.TelConfig as Tel
-    ( State(..), TelMonad, StaticState(..), DynamicState(..) ) 
+  ( DynamicState(..)
+  , State(..)
+  , StaticState(..)
+  , TelMonad
+  )
 import Adapter.Tel.TelEchoBot as Tel
-    ( sendMsgKeyboard,
-      msgHelp,
-      countRepeat,
-      isWaitForRepeat,
-      setWaitForRepeat,
-      setCountRepeat,
-      nameAdapter )
+  ( countRepeat
+  , isWaitForRepeat
+  , msgHelp
+  , nameAdapter
+  , sendMsgKeyboard
+  , setCountRepeat
+  , setWaitForRepeat
+  )
 import Adapter.Tel.TelEntity as Tel
-    ( telKeyb,
-      TelButton(..),
-      TelChat(..),
-      TelKeyboard(..),
-      TelKeyboardPostMessage(..),
-      TelMsg(..),
-      TelUpdate(..),
-      TelUpdates(..),
-      TelUser(..) )
+  ( TelButton(..)
+  , TelChat(..)
+  , TelKeyboard(..)
+  , TelKeyboardPostMessage(..)
+  , TelMsg(..)
+  , TelUpdate(..)
+  , TelUpdates(..)
+  , TelUser(..)
+  , telKeyb
+  )

@@ -1,6 +1,6 @@
 module Log.LogMonad where
 
-import ClassyPrelude 
+import ClassyPrelude
 import Log.LogEntity (LogWrite)
 
 class (Monad m, MonadIO m) =>
