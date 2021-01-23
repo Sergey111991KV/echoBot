@@ -4,7 +4,7 @@ import ClassyPrelude
 
 import Control.Monad.Except (MonadError(..))
 
-import Bot.Message
+import Bot.Message ( BotCompatibleMsg(textMsg), BotMsg(..) )
 
 import Bot.Bot (Bot(..))
 import Bot.Error

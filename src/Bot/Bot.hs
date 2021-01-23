@@ -2,7 +2,7 @@ module Bot.Bot where
 
 import Bot.Error (Error)
 import Bot.Message (BotMsg)
-import ClassyPrelude (Text)
+import ClassyPrelude 
 import Control.Monad.Except (MonadError)
 import Log.ImportLog (Log)
 
@@ -12,3 +12,5 @@ class (Log m, MonadError Error m) =>
   getLastMsgArray :: m [BotMsg]
   sendMsg :: BotMsg -> m ()
   sendMsgHelp :: Text -> BotMsg -> m ()
+
+
