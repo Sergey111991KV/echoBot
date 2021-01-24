@@ -12,11 +12,13 @@ If you want to get help message
 
 
 ## Configuration:
-  All configuration are in the src/Config.hs and you need to write in your customization or if need I can rewrite project with change "bot.config"
+All configuration are in the src/Config.hs and you need to write in your customization or if need I can rewrite project with change "bot.config":
+
         help message
         count repeat message
         log configuration ( logFile - where to write?, logLevelForFile - recording level(Debug, Warning ,Error), logConsole  - is write to console?)
-        and some specific option for every bot just need only for administrator
+        
+and some specific option for every bot just need only for administrator
 
 ## For start:
    for start bot you need to create file "bot.config" like file from folder templates, to replaced "token" with your token
