@@ -1,8 +1,13 @@
 # EchoBot
 
-    This bot sends messages back to telegram and vk
-    Bot can  repeat last message and if you need to change count repeate - /repeat in VK or Telegram.
-    If you want to get help message - /help
+This bot sends messages back to telegram and vk
+Bot can  repeat last message and if you need to change count repeate 
+
+                /repeat
+
+If you want to get help message 
+
+                 /help
 
 
 
@@ -20,18 +25,27 @@
 
 ### All you need to start project:
 
-        create file "bot.config" like in templates/bot.config.template 
+*       create file 
+                
+                "bot.config" 
 
-        write your option and script to start project, like this:
+        like in 
+                
+                templates/bot.config.template 
+
+*      write your option and script to start project, like this:
         
-                        TelegramToken 889:9jhhjj
-                        VKtoken dsfdsfsdfsadfasfasddsfsd345
-                        RepeatCount 2
-                        HelpMessage "default help message"
+                TelegramToken 889:9jhhjj
+                VKtoken dsfdsfsdfsadfasfasddsfsd345
+                RepeatCount 2
+                HelpMessage "default help message"
 
 *       take script in terminal:
-                        stack build
+
+                stack build
+                
 ## Structure of project.
+        
         All logic divided for 2 group: Bot  (main logic) and Adapter (implementation). 
         I used for ReaderT design pattern. 
         Adapter/Telegram - all logic for Telegram.
