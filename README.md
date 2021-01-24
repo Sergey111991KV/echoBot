@@ -25,25 +25,25 @@ If you want to get help message
 
 ### All you need to start project:
 
-*       create file 
+create file 
                 
                 "bot.config" 
 
-        like in 
+like in 
                 
                 templates/bot.config.template 
 
-*      write your option and script to start project, like this:
+write your option and script to start project, like this:
         
                 TelegramToken 889:9jhhjj
                 VKtoken dsfdsfsdfsadfasfasddsfsd345
                 RepeatCount 2
                 HelpMessage "default help message"
 
-*       take script in terminal:
+take script in terminal:
 
                 stack build
-                
+
 ## Structure of project.
         
         All logic divided for 2 group: Bot  (main logic) and Adapter (implementation). 
