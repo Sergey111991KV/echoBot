@@ -2,6 +2,16 @@ module Adapter.VK.VKConfig where
 
 import Adapter.VK.VKEntity (VKLongPollConfig)
 import ClassyPrelude
+    ( Show,
+      Generic,
+      Bool,
+      Double,
+      Int,
+      String,
+      MonadIO,
+      Text,
+      TVar,
+      MonadReader )
   
 import Data.Aeson (FromJSON)
 import Data.Has (Has)
@@ -10,7 +20,7 @@ import Network.HTTP.Client ( Manager )
 
 import Bot.Error ( Error )
 import Log.ImportLog (Log, LogConfig)
-import Config.VKKeyboard
+import Adapter.VK.VKKeyboard ( VKKeyboard )
 
 type VKMonad r m = (Has State r, MonadReader r m, MonadIO m, Log m, MonadError Error m)
 

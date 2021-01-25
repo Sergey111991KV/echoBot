@@ -44,9 +44,11 @@ import Bot.Message
   , findMaxUpd
   )
 import Bot.Request (buildJsonObject, sendJSON', sendReq)
+import Log.ImportLog ( Log(writeLogD) )
 
 getLastMsgArray :: TelMonad r m => m [BotMsg]
 getLastMsgArray = do
+  writeLogD "getLastMsgArray Telegram" 
   liftIO (threadDelay 1000000) --- оставил ее здесь
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
@@ -69,6 +71,7 @@ getLastMsgArray = do
 
 processUpdates :: TelMonad r m => Int -> Either String TelUpdates -> m [BotMsg]
 processUpdates idStateMsg eitherUpdates = do
+  writeLogD "processUpdates Telegram" 
   case eitherUpdates of
     Left _ -> do
       throwError NotAnswer
@@ -82,6 +85,7 @@ convertTelMes telUpd = fmap fp (result telUpd)
 
 sendMsg :: TelMonad r m => BotMsg -> m ()
 sendMsg (BotMsg botMsg) = do
+  writeLogD "sendMsg Telegram" 
   st <- asks getter
   let txtOfMsg = textMsg botMsg
       idM = chatId botMsg
@@ -92,6 +96,7 @@ sendMsg (BotMsg botMsg) = do
 
 sendMsgHelp :: TelMonad r m => Text -> BotMsg -> m ()
 sendMsgHelp helpText (BotMsg botMsg) = do
+  writeLogD "sendMsgHelp Telegram" 
   st <- asks getter
   let idM = chatId botMsg
   let url =
@@ -101,6 +106,7 @@ sendMsgHelp helpText (BotMsg botMsg) = do
 
 sendText :: TelMonad r m => Text -> Int -> String -> m ()
 sendText txtOfMsg chatIdSendMsg sendUrl = do
+  writeLogD "sendText Telegram" 
   st <- asks getter
   sendJSON'
     (telManager $ staticState st)
@@ -108,5 +114,4 @@ sendText txtOfMsg chatIdSendMsg sendUrl = do
     (buildJsonObject
        [("chat_id", show chatIdSendMsg), ("text", unpack txtOfMsg)])
 
-getNameAdapter :: TelMonad r m => m Text
-getNameAdapter = return "Telegram"
+

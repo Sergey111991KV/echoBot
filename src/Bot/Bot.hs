@@ -2,7 +2,7 @@ module Bot.Bot where
 
 import Bot.Error (Error)
 import Bot.Message (BotMsg)
-import ClassyPrelude 
+import ClassyPrelude ( Text ) 
 import Control.Monad.Except (MonadError)
 import Log.ImportLog (Log)
 

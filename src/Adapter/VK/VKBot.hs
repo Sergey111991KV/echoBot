@@ -27,11 +27,13 @@ import Adapter.VK.VKEntity
   )
 import Bot.Error
 import Bot.Request (sendReq, sendReq')
-
+import Log.ImportLog ( Log(writeLogD) )
 import Bot.Message
+    ( BotCompatibleMsg(chatId, textMsg), BotMsg(..) )
 
 getLastMsgArray :: VKMonad r m => m [BotMsg]
 getLastMsgArray = do
+  writeLogD "getLastMsgArray VK" 
   (State dyn stat) <- getVKConfig
   stDyn <- readTVarIO dyn
   let url = "https://" <> server (longConfig stDyn)
@@ -48,6 +50,7 @@ getLastMsgArray = do
 
 getVKConfig :: VKMonad r m => m State
 getVKConfig = do
+  writeLogD "getVKConfig VK" 
   st <- asks getter
   responseConfig <-
     sendReq
@@ -66,6 +69,7 @@ getVKConfig = do
 
 getNewStateLongPool :: VKMonad r m => VKLongPollConfig -> m State
 getNewStateLongPool newLongPoll = do
+  writeLogD "getNewStateLongPool" 
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let newDynSt = dynSt {longConfig = newLongPoll}
@@ -77,6 +81,7 @@ caseOfGetMsg ::
   => Response Data.ByteString.Lazy.Internal.ByteString
   -> m [BotMsg]
 caseOfGetMsg responseGetMsg = do
+  writeLogD "caseOfGetMsg VK" 
   let upd =
         eitherDecode $ responseBody responseGetMsg :: Either String UpdatesVK
   case upd of
@@ -122,6 +127,7 @@ parseValueText _ = "not parse"
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
 sendMsg (BotMsg msg) = do
+  writeLogD "sendMsg VK" 
   st <- asks getter
   sendReq'
     (vkManager $ staticState st)
@@ -134,6 +140,7 @@ sendMsg (BotMsg msg) = do
 
 sendMsgHelp :: VKMonad r m => Text -> BotMsg -> m ()
 sendMsgHelp helpMess (BotMsg msg) = do
+  writeLogD "sendMsgHelp VK" 
   st <- asks getter
   sendReq'
     (vkManager $ staticState st)
@@ -144,5 +151,3 @@ sendMsgHelp helpMess (BotMsg msg) = do
     , ("message", unpack helpMess)
     ]
 
-getNameAdapter :: VKMonad r m => m Text
-getNameAdapter = return "VK"

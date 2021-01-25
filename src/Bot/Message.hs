@@ -1,6 +1,13 @@
 module Bot.Message where
 
 import ClassyPrelude
+    ( ($),
+      Functor(fmap),
+      Ord((>), (<)),
+      Semigroup((<>)),
+      Int,
+      Maybe(..),
+      Text )
 
 data BotMsg =
   forall a. BotCompatibleMsg a =>
@@ -56,29 +63,3 @@ head' ::[Int] -> Int
 head' [] = 0
 head' [x] = x
 head' (x:_) = x
-
-
-
-
-
-
-
-
-
-
---   isEmpty :: a -> Bool
-
--- data EmptyMsg = EmptyMsg {
---   emptyTextMsg ::  Text
---   , emptyChatId ::  Int
---   , emptyIdMsg ::  Int
--- }
-
--- instance BotCompatibleMsg EmptyMsg where
---     textMsg = emptyTextMsg
---     chatId = emptyChatId
---     idMsg = emptyIdMsg
---     isEmpty _ = True
-
--- emptyMsg :: EmptyMsg
--- emptyMsg = EmptyMsg "" 0 0

@@ -1,4 +1,4 @@
-module Config.VKKeyboard where
+module Adapter.VK.VKKeyboard where
 
 import ClassyPrelude
     ( Show,

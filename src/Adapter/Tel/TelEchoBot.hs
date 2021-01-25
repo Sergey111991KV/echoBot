@@ -15,9 +15,11 @@ import Adapter.Tel.TelConfig
 import Adapter.Tel.TelEntity (TelKeyboardPostMessage(TelKeyboardPostMessage))
 import Bot.Message (BotCompatibleMsg(chatId), BotMsg(..))
 import Bot.Request (sendJSON')
+import Log.ImportLog ( Log(writeLogD) )
 
 sendMsgKeyboard :: TelMonad r m => BotMsg -> m ()
 sendMsgKeyboard (BotMsg botMsg) = do
+  writeLogD "sendMsgKeyboard Telegram" 
   st <- asks getter
   let idM = chatId botMsg
   let url =
@@ -33,23 +35,27 @@ sendMsgKeyboard (BotMsg botMsg) = do
 
 msgHelp :: TelMonad r m => m Text
 msgHelp = do
+  writeLogD "msgHelp Telegram" 
   st <- asks getter
   return . textMsgHelp $ staticState st
 
 countRepeat :: TelMonad r m => m Int
 countRepeat = do
+  writeLogD "countRepeat Telegram" 
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   return $ repeats dynSt
 
 isWaitForRepeat :: TelMonad r m => m Bool
 isWaitForRepeat = do
+  writeLogD "isWaitForRepeat Telegram" 
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   return $ waitForRepeat dynSt
 
 setWaitForRepeat :: TelMonad r m => Bool -> m ()
 setWaitForRepeat boolWaitRepeat = do
+  writeLogD "setWaitForRepeat Telegram" 
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let newDynSt = dynSt {waitForRepeat = boolWaitRepeat}
@@ -58,6 +64,7 @@ setWaitForRepeat boolWaitRepeat = do
 
 setCountRepeat :: TelMonad r m => Int -> m ()
 setCountRepeat countRep = do
+  writeLogD "setCountRepeat Telegram" 
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
   let newDynSt = dynSt {repeats = countRep}

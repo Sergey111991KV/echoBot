@@ -1,6 +1,18 @@
 module Bot.EchoBot where
 
 import ClassyPrelude
+    ( ($),
+      Monad(return),
+      Num((-)),
+      Ord((>), (<=)),
+      Semigroup((<>)),
+      Bool(..),
+      Int,
+      Maybe(..),
+      MonadIO,
+      Text,
+      (&&),
+      readMay )
 
 import Control.Monad.Except (MonadError(..))
 
@@ -8,6 +20,7 @@ import Bot.Message ( BotCompatibleMsg(textMsg), BotMsg(..) )
 
 import Bot.Bot (Bot(..))
 import Bot.Error
+    ( errorText, Error(CannotRepeatFalseNumber, CannotRepeatCountSet) )
 import Log.ImportLog (Log(writeLogD, writeLogE))
 
 class (Bot m, MonadError Error m, MonadIO m) =>

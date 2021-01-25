@@ -30,7 +30,7 @@ import Log.ImportLog
   , LogWrite(Debug)
   )
 import Bot.Error ( Error(CannotGetKeyboardVK, ErrorGetConfigPair) ) 
-import Config.VKKeyboard ( getJSON, VKKeyboard )
+import Adapter.VK.VKKeyboard ( getJSON, VKKeyboard )
 
 getPairFromFile :: Text -> Either Pars.ParseError ([ConfigPair],String)
 getPairFromFile = Pars.parse myParser ""

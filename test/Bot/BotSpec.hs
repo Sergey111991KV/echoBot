@@ -29,11 +29,15 @@ newtype App a =
   deriving (Applicative, Functor, Monad, MonadReader (Fixture (Either Error)), MonadIO, MonadError Error)
 
 instance Bot App where
-  getLastMsgArray = undefined 
-    -- dispatch0 _getLastMsgArray ---- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
-  sendMsg = undefined
+  getLastMsgArray =  asks _getLastMsgArray >>= liftEither
+
+    -- undefined 
+    -- dispatch0 _getLastMsgArray 
+    -- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
+  sendMsg mess = asks _sendMsg mess >>= liftEither
+    -- liftEither
     -- dispatch _sendMsg ---- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
-  sendMsgHelp = undefined
+  sendMsgHelp =  asks _sendMsgHelp >>= liftEither
     --  dispatch2 _sendHelpMsg ---- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
 
 

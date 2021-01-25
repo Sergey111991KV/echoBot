@@ -1,18 +1,17 @@
 module Fixture where
 
 import ClassyPrelude
-    ( ($), IO, error, asks, MonadIO(..), MonadReader )
+import Bot.Error
 
 
 unimplemented :: a
 unimplemented = error "unimplemented"
 
-dispatch0 :: (MonadIO m, MonadReader r m)
-         => (r -> IO b)
-         -> m b
-dispatch0 getter  = do
-  func <- asks getter
-  liftIO func 
+-- dispatch0 ::(r -> Either Error b)
+--          -> Either Error b
+-- dispatch0   =  asks 
+
+--   -- liftIO func 
 
 dispatch :: (MonadIO m, MonadReader r m)
          => (r -> a -> IO b)

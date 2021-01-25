@@ -4,7 +4,6 @@ module Adapter.VK.VKMain
 
 import Adapter.VK.VKBot as VK
     ( caseOfGetMsg,
-      getNameAdapter,
       getNewStateLongPool,
       getVKConfig,
       parseArray,
@@ -32,4 +31,4 @@ import Adapter.VK.VKEchoBot as VK
       setWaitForRepeat,
       setCountRepeat,
       nameAdapter )
-
+import Adapter.VK.VKKeyboard as VK
