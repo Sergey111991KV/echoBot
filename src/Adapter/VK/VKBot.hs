@@ -1,13 +1,30 @@
 module Adapter.VK.VKBot where
 
 import ClassyPrelude
+    ( ($),
+      Monad(return, (>>)),
+      Show(show),
+      Semigroup((<>)),
+      Int,
+      Either,
+      String,
+      MonadIO(liftIO),
+      Text,
+      (.),
+      either,
+      print,
+      concatMap,
+      unpack,
+      asks,
+      swapTVar,
+      atomically,
+      readTVarIO )
 
 import Control.Monad.Except (MonadError(throwError))
-import Data.Aeson (Array, Value(Number, String), eitherDecode)
+import Data.Aeson ( eitherDecode, Array ) 
 import Data.ByteString.Lazy.Internal (ByteString)
 import Data.Has (Has(getter))
-import Data.Scientific (Scientific(coefficient))
-import qualified Data.Vector as V
+
 import Network.HTTP.Client (Response(responseBody))
 
 import Adapter.VK.VKConfig
@@ -20,12 +37,12 @@ import Adapter.VK.VKConfig
   , VKVersion(takeVKVersion)
   )
 import Adapter.VK.VKEntity
-  ( MessageVK(MessageVK)
-  , ResponseVK(ResponseVK)
-  , UpdatesVK(UpdatesVK)
-  , VKLongPollConfig(key, server, tsLast)
-  )
-import Bot.Error
+    ( ResponseVK(ResponseVK),
+      UpdatesVK(UpdatesVK),
+      VKLongPollConfig(server, key, tsLast),
+      parseArray )
+ 
+import Bot.Error ( Error(CantConvertFromData, NotAnswer) )
 import Bot.Request (sendReq, sendReq')
 import Log.ImportLog ( Log(writeLogD) )
 import Bot.Message
@@ -61,14 +78,11 @@ getVKConfig = do
       ]
   let upd =
         eitherDecode (responseBody responseConfig) :: Either String ResponseVK
-  case upd of
-    Left _ -> do
-      throwError NotAnswer
-    Right (ResponseVK vkconfigpoll) -> do
-      getNewStateLongPool vkconfigpoll
+  either (\_ -> throwError NotAnswer) getNewStateLongPool  upd
 
-getNewStateLongPool :: VKMonad r m => VKLongPollConfig -> m State
-getNewStateLongPool newLongPoll = do
+
+getNewStateLongPool :: VKMonad r m => ResponseVK -> m State
+getNewStateLongPool (ResponseVK newLongPoll) = do
   writeLogD "getNewStateLongPool" 
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
@@ -84,12 +98,9 @@ caseOfGetMsg responseGetMsg = do
   writeLogD "caseOfGetMsg VK" 
   let upd =
         eitherDecode $ responseBody responseGetMsg :: Either String UpdatesVK
-  case upd of
-    Left _ -> do
-      throwError CantConvertFromData
-    Right (UpdatesVK ts arr) -> do
-      setNewTs ts
-      parseArrays arr
+  print upd
+  either (\_ -> throwError CantConvertFromData) 
+        (\ (UpdatesVK ts arr) -> setNewTs ts >>  parseArrays arr )  upd
 
 setNewTs :: VKMonad r m => Int -> m ()
 setNewTs ts = do
@@ -103,27 +114,6 @@ parseArrays :: VKMonad r m => [Array] -> m [BotMsg]
 parseArrays [] = return []
 parseArrays arrays = return $ concatMap parseArray arrays
 
-parseArray :: Array -> [BotMsg]
-parseArray arr =
-  if V.length arr == 7 && (parseValueInt (arr V.! 0) == 4)
-    then do
-      let x = parseValueInt $ arr V.! 0
-      let y = parseValueInt $ arr V.! 1
-      let e = parseValueInt $ arr V.! 2
-      let r = parseValueInt $ arr V.! 3
-      let t = parseValueInt $ arr V.! 4
-      let i = parseValueText $ arr V.! 5
-      let u = parseValueText $ arr V.! 6
-      [BotMsg (MessageVK x y e r t i u)]
-    else []
-
-parseValueInt :: Value -> Int
-parseValueInt (Number a) = fromInteger $ coefficient a
-parseValueInt _ = 0
-
-parseValueText :: Value -> Text
-parseValueText (String a) = a
-parseValueText _ = "not parse"
 
 sendMsg :: VKMonad r m => BotMsg -> m ()
 sendMsg (BotMsg msg) = do

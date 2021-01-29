@@ -1,24 +1,7 @@
 module Adapter.Tel.TelBot where
 
 import ClassyPrelude
-  ( Either(..)
-  , Eq((==))
-  , Functor(fmap)
-  , Int
-  , Monad(return)
-  , MonadIO(liftIO)
-  , Semigroup((<>))
-  , Show(show)
-  , String
-  , Text
-  , ($)
-  , (.)
-  , asks
-  , atomically
-  , readTVarIO
-  , swapTVar
-  , unpack
-  )
+  
 
 import Control.Monad.Except (MonadError(catchError, throwError))
 import Data.Aeson (eitherDecode)
@@ -38,12 +21,8 @@ import Control.Concurrent (threadDelay)
 import Bot.Error (Error(CannotSendMsg, NotAnswer))
 
 import Bot.Message
-  ( BotCompatibleMsg(chatId, textMsg)
-  , BotMsg(..)
-  , findLastMsgs
-  , findMaxUpd
-  )
-import Bot.Request (buildJsonObject, sendJSON', sendReq)
+  
+import Bot.Request
 import Log.ImportLog ( Log(writeLogD) )
 
 getLastMsgArray :: TelMonad r m => m [BotMsg]
@@ -56,11 +35,15 @@ getLastMsgArray = do
         botUrl (staticState st) <>
         token (staticState st) <> "/" <> getUpdates (staticState st)
   responseLastMsg <- sendReq (telManager $ staticState st) url []
+
                                           -- [("timeout","1000")] -  я попробовал этот параметр отправить,
                                           -- но что-то не сраслось, запрос проходит, а timeoutа нет
+  -- responseLastMsg' <- sendJSONraw (telManager $ staticState st) url jj
+
+                                          -- sendJSONraw
   let updT =
         eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
-  arrMsg <- processUpdates (lastMsgId dynSt) updT
+  arrMsg <- either (\_ -> throwError NotAnswer) (return . findLastMsgs  (lastMsgId dynSt) . convertTelMes ) updT
   let idMax = findMaxUpd arrMsg
   if idMax == 0
     then return arrMsg
@@ -69,14 +52,6 @@ getLastMsgArray = do
       _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
       return arrMsg
 
-processUpdates :: TelMonad r m => Int -> Either String TelUpdates -> m [BotMsg]
-processUpdates idStateMsg eitherUpdates = do
-  writeLogD "processUpdates Telegram" 
-  case eitherUpdates of
-    Left _ -> do
-      throwError NotAnswer
-    Right upd -> do
-      return . findLastMsgs idStateMsg $ convertTelMes upd
 
 convertTelMes :: TelUpdates -> [BotMsg]
 convertTelMes telUpd = fmap fp (result telUpd)

@@ -4,7 +4,6 @@ module Adapter.Tel.TelMain
 
 import Adapter.Tel.TelBot as Tel
   ( getLastMsgArray
-  , processUpdates
   , sendMsg
   , sendMsgHelp
   , sendText

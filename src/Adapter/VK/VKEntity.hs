@@ -4,15 +4,10 @@ module Adapter.VK.VKEntity where
 import ClassyPrelude
  
 import Data.Aeson
-    ( (.:),
-      object,
-      FromJSON(parseJSON),
-      Array,
-      Value(Object),
-      KeyValue((.=)),
-      ToJSON(toJSON) )
-      
-import Bot.Message (BotCompatibleMsg(..))
+import qualified Data.Vector as V
+
+import Data.Scientific (Scientific(coefficient))
+import Bot.Message
 
 data UpdatesVK =
   UpdatesVK
@@ -36,6 +31,54 @@ data MessageVK =
     , textVk :: Text
     }
   deriving (Show, Generic)
+
+                -- have some problem here
+
+-- instance FromJSON MessageVK where
+--   parseJSON (Array a) = do
+--     x <- parseJSON $ a V.! 0
+--     y <- parseJSON  $ a V.! 1
+--     e <- parseJSON $ a V.! 2
+--     r <- parseJSON $ a V.! 3
+--     t <- parseJSON $ a V.! 4
+--     i <- parseJSON $ a V.! 5
+--     u <- parseJSON $ a V.! 6
+--     return $ MessageVK x y e r t i u
+--   parseJSON _ = mzero   
+  
+
+-- data UpdatesVK =
+--   UpdatesVK
+--     { tsCome :: Int
+--     , result :: [MessageVK] 
+--     }
+
+                --- Poblem: I  not understand,  how to write condition array length == 7 and parse value
+                ---             in parseJSON
+            
+
+
+parseArray :: Array -> [BotMsg]
+parseArray arr =
+  if V.length arr == 7 && (parseValueInt (arr V.! 0) == 4)
+    then do
+      let x = parseValueInt $ arr V.! 0
+      let y = parseValueInt $ arr V.! 1
+      let e = parseValueInt $ arr V.! 2
+      let r = parseValueInt $ arr V.! 3
+      let t = parseValueInt $ arr V.! 4
+      let i = parseValueText $ arr V.! 5
+      let u = parseValueText $ arr V.! 6
+      [BotMsg (MessageVK x y e r t i u)]
+    else []
+
+parseValueInt :: Value -> Int
+parseValueInt (Number a) = fromInteger $ coefficient a
+parseValueInt _ = 0
+
+parseValueText :: Value -> Text
+parseValueText (String a) = a
+parseValueText _ = "not parse"
 
 newtype ResponseVKSend =
   ResponseVKSend

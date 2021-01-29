@@ -9,32 +9,34 @@ import Control.Monad.Except (ExceptT, MonadError(throwError), runExceptT)
 
 import Bot.EchoBot (EchoBot(..), echoBot)
 import ClassyPrelude
-  ( Applicative
-  , Bool(..)
-  , Either(..)
-  , FilePath
-  , Functor
-  , IO
-  , Monad(return)
-  , MonadIO(..)
-  , MonadReader
-  , ReaderT(..)
-  , Semigroup((<>))
-  , SomeException
-  , String
-  , Text
-  , ($)
-  , (.)
-  , asks
-  , concurrently
-  , getCurrentTime
-  , getLine
-  , newTVarIO
-  , null
-  , print
-  , try
-  , unless
-  )
+    ( ($),
+      Monad(return),
+      Functor,
+      Applicative,
+      Semigroup((<>)),
+      Bool(..),
+      IO,
+      Either(..),
+      String,
+      SomeException,
+      MonadIO(..),
+      FilePath,
+      Text,
+      (.),
+      either,
+      unless,
+      when,
+      getLine,
+      print,
+      null,
+      asks,
+      getCurrentTime,
+      try,
+      concurrently,
+      newTVarIO,
+      MonadReader,
+      ReaderT(..) )
+  
 
 import Bot.Error
   ( Error(ErrorGetConfig, ErrorGetConfigPair, ErrorParseConfig)
@@ -92,42 +94,39 @@ runTelWithConfig stateTelegram = do
 getConfigTel :: (MonadIO m, MonadError Error m) => FilePath -> m Tel.State
 getConfigTel fp = do
   textFromFile <- liftIO . try $ TIO.readFile fp
-  case (textFromFile :: Either SomeException Text) of
-    Left _ -> throwError ErrorGetConfig
-    Right configRaw -> do
-      let parRaw = Config.getPairFromFile configRaw
-      case parRaw of
-        Left _ -> throwError ErrorGetConfigPair
-        Right ([], anotherString) -> do
-          throwError $ ErrorParseConfig anotherString
-        Right (configPair, anotherString) -> do
-          unless (null anotherString) . print $
+  configRaw <- either (\_ -> throwError ErrorGetConfig) return (textFromFile :: Either SomeException Text)
+  (configPair, anotherString) <- either (\_ -> throwError ErrorGetConfigPair) return (Config.getPairFromFile configRaw)
+  when (null configPair) . throwError $ ErrorParseConfig anotherString
+  unless (null anotherString) . print $
             ("This string has not been parsed:  " <> anotherString)
-          dynSt <- Config.telDynamicConf configPair
-          dynSt' <- newTVarIO dynSt
-          staticSt <- Config.telStaticConf configPair
-          return $ Tel.State dynSt' staticSt
+  dynSt <- Config.telDynamicConf configPair
+  dynSt' <- newTVarIO dynSt
+  staticSt <- Config.telStaticConf configPair
+  return $ Tel.State dynSt' staticSt
 
 startTelegramBot :: FilePath -> IO ()
 startTelegramBot fp = do
   caseOfConf <- runExceptT $ getConfigTel fp
-  case caseOfConf of
-    Left err -> do
-      print $ errorText err <> " take right telegram bot options"
-    Right conf -> do
-      resultStart <- runTelWithConfig conf
-      case resultStart of
-        Left _ -> do
-          print
-            ("Check connection and put y/n for restart module telegram" :: String)
-          restartProsess <- proccesInput
-          if restartProsess
+  either      (\err -> print $ errorText err <> " take right telegram bot options") 
+              (\conf -> do
+                resultStart <- runTelWithConfig conf 
+                either  (\_ -> restartProsessTel fp) 
+                        return 
+                        resultStart
+                
+                )
+              caseOfConf
+
+restartProsessTel :: FilePath -> IO ()
+restartProsessTel fp = do
+  print ("Check connection and put y/n for restart module telegram" :: String)
+  restartProsess <- proccesInput
+  if restartProsess
             then do
               startTelegramBot fp
             else do
               print ("Module Telegram is End" :: String)
-        Right () -> do
-          return ()
+ 
 
 newtype AppVK a =
   AppVK
@@ -175,42 +174,38 @@ runVKWithConfig stateVK = do
 getConfigVK :: (MonadIO m, MonadError Error m) => FilePath -> m VKBot.State
 getConfigVK fp = do
   textFromFile <- liftIO . try $ TIO.readFile fp
-  case (textFromFile :: Either SomeException Text) of
-    Left _ -> throwError ErrorGetConfig
-    Right configRaw -> do
-      print configRaw
-      let parRaw = Config.getPairFromFile configRaw
-      case parRaw of
-        Left _ -> throwError ErrorGetConfigPair
-        Right ([], anotherString) -> do
-          throwError $ ErrorParseConfig anotherString
-        Right (configPair, anotherString) -> do
-          unless (null anotherString) . print $
+  configRaw <- either (\_ -> throwError ErrorGetConfig) return (textFromFile :: Either SomeException Text)
+  (configPair, anotherString) <- either (\_ -> throwError ErrorGetConfigPair) return (Config.getPairFromFile configRaw)
+  when (null configPair) . throwError $ ErrorParseConfig anotherString
+  unless (null anotherString) . print $
             ("This string has not been parsed:  " <> anotherString)
-          dynSt <- Config.vkDynamicConf configPair
-          dynSt' <- newTVarIO dynSt
-          staticSt <- Config.vkStaticConf configPair
-          return $ VKBot.State dynSt' staticSt
+  dynSt <- Config.vkDynamicConf configPair
+  dynSt' <- newTVarIO dynSt
+  staticSt <- Config.vkStaticConf configPair
+  return $ VKBot.State dynSt' staticSt
 
 startVKBot :: FilePath -> IO ()
 startVKBot fp = do
   caseOfConf <- runExceptT $ getConfigVK fp
-  case caseOfConf of
-    Left err -> do
-      print $ errorText err <> " take right vk bot options"
-    Right conf -> do
-      resultStart <- runVKWithConfig conf
-      case resultStart of
-        Left _ -> do
-          print ("Check connection and put y/n for restart module vk" :: String)
-          restartProsess <- proccesInput
-          if restartProsess
+  either      (\err -> print $ errorText err <> " take right vk bot options") 
+              (\conf -> do
+                resultStart <- runVKWithConfig conf 
+                either  (\_ -> restartProsessVK fp) 
+                        return 
+                        resultStart
+                
+                )
+              caseOfConf
+
+restartProsessVK :: FilePath -> IO ()
+restartProsessVK fp = do
+  print ("Check connection and put y/n for restart module telegram" :: String)
+  restartProsess <- proccesInput
+  if restartProsess
             then do
               startVKBot fp
             else do
-              print ("Module VK is End" :: String)
-        Right () -> do
-          return ()
+              print ("Module Telegram is End" :: String)
 
 proccesInput :: IO Bool
 proccesInput = do
