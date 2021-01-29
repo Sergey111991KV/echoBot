@@ -4,10 +4,27 @@ import Bot.Bot
 import Bot.Error
 import Bot.Message
 import ClassyPrelude
-import Fixture
+    ( ($),
+      Monad(return, (>>=)),
+      Functor,
+      Applicative,
+      Bool(True),
+      Int,
+      IO,
+      Either(..),
+      MonadIO(..),
+      const,
+      Text,
+      asks,
+      getCurrentTime,
+      MonadReader,
+      ReaderT(..) )
 import Log.ImportLog
-import Test.Hspec
+ 
+import Test.Hspec ( describe, it, shouldReturn, Spec )
 import Control.Monad.Except
+import Fixture
+
 
 data Fixture m =
   Fixture
@@ -30,15 +47,12 @@ newtype App a =
 
 instance Bot App where
   getLastMsgArray =  asks _getLastMsgArray >>= liftEither
-
-    -- undefined 
-    -- dispatch0 _getLastMsgArray 
-    -- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
-  sendMsg mess = asks _sendMsg mess >>= liftEither
-    -- liftEither
-    -- dispatch _sendMsg ---- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
-  sendMsgHelp =  asks _sendMsgHelp >>= liftEither
-    --  dispatch2 _sendHelpMsg ---- здесь нужно правильно определить тип, как я понял сюда добавить either or exeptT?
+  sendMsg mess = do
+    func <- asks _sendMsg  
+    liftEither $ func mess
+  sendMsgHelp text mess = do
+    func <- asks _sendHelpMsg
+    liftEither $ func text mess
 
 
 logConfTest :: LogConfig
@@ -58,6 +72,8 @@ instance Log App where
   writeLogW = writeLog Warning
   writeLogE = writeLog Error
 
+
+
 emptyFixture :: Fixture m
 emptyFixture =
   Fixture
@@ -74,7 +90,7 @@ runApp :: Fixture (Either Error) -> App a -> IO (Either Error a)
 runApp fixture app = do
    runExceptT $ runReaderT  (unApp  app) fixture
 -- runApp fixture action = do
-  -- flip runReaderT fixture . unApp $ action
+  -- flip runReaderT fixture . unApp $ action   ---- this text code I save for self-understand))
 
 data EmptyMessage =
   EmptyMessage
@@ -96,10 +112,8 @@ spec = do
       let fixture =
             emptyFixture
               { _sendMsg = \_ -> do
-                Left NotAnswer
-    
-              }
-      
+                throwError NotAnswer
+              } 
       runApp fixture (sendMsg (BotMsg (EmptyMessage "" 0 0))) `shouldReturn`
           Left NotAnswer
   describe "sendMsgHelp message" $ do

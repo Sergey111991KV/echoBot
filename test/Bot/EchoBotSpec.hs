@@ -1,113 +1,136 @@
 module Bot.EchoBotSpec where
 
--- import ClassyPrelude
--- import Test.Hspec
--- import Control.Monad.Except
+import ClassyPrelude
+import Test.Hspec
+import Control.Monad.Except
 
--- import Bot.Bot
--- import Bot.EchoBot
--- import Bot.Error
--- import Bot.Message
--- import Fixture
--- import Log.ImportLog
--- import Log.LogMonad
-
--- data Fixture m =
---   Fixture
---     { _getLastMsg :: m BotMsg
---     , _sendMsg :: BotMsg -> m ()
---     , _sendHelpMsg :: Text -> BotMsg -> m ()
---     , _nameAdapter :: m Text
---     , _logIn :: LogWrite -> Text -> m ()
---     , _helpMsg :: m Text
---     , _repeatsCount :: m Integer
---     , _isWaitingForRepeats :: m Bool
---     , _setWaitingForRepeats :: Bool -> m ()
---     , _setRepeatsCount :: Integer -> m ()
---     , _sendKeyboardMsg :: BotMsg -> m  ()
---     }
-
--- newtype App a =
---   App
---     { unApp :: ReaderT (Fixture IO) (ExceptT Error IO) a
---     }
---   deriving (Applicative, Functor, Monad, MonadReader (Fixture IO), MonadIO, MonadError Error )
-
--- runApp :: Fixture IO -> App a -> IO (Either Error a)
--- runApp fixture app = do
---    runExceptT $ runReaderT  (unApp  app) fixture
-
--- instance Bot App where
---   getMsgLast = dispatch0 _getLastMsg
---   sendMsg = dispatch _sendMsg
---   sendMsgHelp = dispatch2 _sendHelpMsg
+import Bot.Bot
+import Bot.EchoBot
+import Bot.Error
+import Bot.Message
+import Log.ImportLog
+import Log.LogMonad
+import Fixture
 
 
--- instance EchoBot App where
---   msgHelp = dispatch0 _helpMsg
---   countRepeat = dispatch0 _repeatsCount
---   isWaitForRepeat = dispatch0 _isWaitingForRepeats
---   setWaitForRepeat = dispatch _setWaitingForRepeats
---   setCountRepeat = dispatch _setRepeatsCount
---   sendMsgKeyboard = dispatch _sendKeyboardMsg
---   nameAdapter = dispatch0 _nameAdapter
+data Fixture m =
+  Fixture
+    { _getLastMsgArray :: m [BotMsg]
+    , _sendMsg :: BotMsg -> m ()
+    , _sendHelpMsg :: Text -> BotMsg -> m ()
+    , _writeLog :: LogWrite -> Text -> m ()
+    , _writeLogE :: Text -> m ()
+    , _writeLogW :: Text -> m ()
+    , _writeLogD :: Text -> m ()
+    , _msgHelp :: m Text
+    , _countRepeat :: m Int
+    , _isWaitForRepeat :: m Bool
+    , _setWaitForRepeat :: Bool -> m ()
+    , _setCountRepeat :: Int -> m ()
+    , _sendMsgKeyboard :: BotMsg -> m  ()
+    , _nameAdapter :: m Text
+    }
 
--- logConfTest :: LogConfig
--- logConfTest =
---   LogConfig
---     { logFile = "log-journalTest.txt"
---     , logLevelForFile = Debug
---     , logConsole = True
---     }
+    
 
--- instance Log App where
---   writeLog l txt = do
---     time <- liftIO getCurrentTime
---     liftIO $ writeLogHandler time logConfTest l txt
---   writeLogD = writeLog Debug
---   writeLogW = writeLog Warning
---   writeLogE = writeLog Error
+newtype App a =
+  App
+    { unApp :: ReaderT (Fixture (Either Error)) (ExceptT Error IO) a
+    }
+  deriving (Applicative, Functor, Monad, MonadReader (Fixture (Either Error)), MonadIO, MonadError Error )
 
--- emptyFixture :: Fixture m
--- emptyFixture =
---   Fixture
---     { _getLastMsg = unimplemented
---     , _sendMsg = const unimplemented
---     , _sendHelpMsg = const unimplemented
---     , _nameAdapter = unimplemented
---     , _helpMsg = unimplemented
---     , _repeatsCount = unimplemented
---     , _isWaitingForRepeats = unimplemented
---     , _setWaitingForRepeats = const unimplemented
---     , _setRepeatsCount = const unimplemented
---     , _sendKeyboardMsg = const unimplemented
---     , _logIn = const unimplemented
---     }
+runApp :: Fixture (Either Error) -> App a -> IO (Either Error a)
+runApp fixture app = do
+   runExceptT $ runReaderT  (unApp  app) fixture
 
--- data EmptyMessage =
---   EmptyMessage
---     { textE :: Text
---     , chatIdE :: Integer
---     , idMsgE :: Integer
---     }
 
--- instance BotCompatibleMsg EmptyMessage where
---   textMsg = textE
---   chatId = chatIdE
---   idMsg = idMsgE
+instance Bot App where
+  getLastMsgArray =  asks _getLastMsgArray >>= liftEither
+  sendMsg  msg = do
+    func <- asks _sendMsg 
+    liftEither $ func msg
+  sendMsgHelp text msg = do
+    func <- asks _sendHelpMsg 
+    liftEither  $ func text msg
 
--- spec :: Spec
--- spec = do
---   describe "sendMsgEcho message" $ do
---     it "should send EchoMessage for countRepeat" $ do
---       let fixture =
---             emptyFixture
---               { _repeatsCount = return 1
---               , _sendMsg = \_ -> return  ()
---               , _nameAdapter = return "Test"
---               }
---       runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
---         Right ()
+
+instance EchoBot App where
+  msgHelp = asks _msgHelp >>= liftEither
+  countRepeat = asks _countRepeat >>= liftEither
+  isWaitForRepeat = asks _isWaitForRepeat >>= liftEither
+  setWaitForRepeat isWait = do
+    func <- asks _setWaitForRepeat 
+    liftEither $ func isWait
+  setCountRepeat count = do
+    func <- asks _setCountRepeat
+    liftEither $ func count
+  sendMsgKeyboard msg = do
+    func <- asks _sendMsgKeyboard
+    liftEither $ func msg
+  nameAdapter = asks _nameAdapter >>= liftEither
+
+
+instance Log App where
+  writeLog l txt = do
+    time <- liftIO getCurrentTime
+    liftIO $ writeLogHandler time logConfTest l txt
+  writeLogD = writeLog Debug
+  writeLogW = writeLog Warning
+  writeLogE = writeLog Error
+
+  
+logConfTest :: LogConfig
+logConfTest =
+  LogConfig
+    { logFile = "log-journalTest.txt"
+    , logLevelForFile = Debug
+    , logConsole = True
+    }
+
+emptyFixture :: Fixture m
+emptyFixture =
+  Fixture
+    { _getLastMsgArray = unimplemented
+    , _sendMsg = const unimplemented
+    , _sendHelpMsg = const unimplemented
+    , _writeLog = const unimplemented
+    , _writeLogE = const unimplemented
+    , _writeLogW = const unimplemented
+    , _writeLogD = const unimplemented
+    , _msgHelp = unimplemented
+    , _countRepeat = unimplemented
+    , _isWaitForRepeat = unimplemented
+    , _setWaitForRepeat = const unimplemented
+    , _setCountRepeat = const unimplemented
+    , _sendMsgKeyboard = const unimplemented
+    , _nameAdapter = unimplemented
+    }
+
+
+data EmptyMessage =
+  EmptyMessage
+    { textE :: Text
+    , chatIdE :: Int
+    , idMsgE :: Int
+    }
+
+instance BotCompatibleMsg EmptyMessage where
+  textMsg = textE
+  chatId = chatIdE
+  idMsg = idMsgE
+
+spec :: Spec
+spec = do
+  describe "sendMsgEcho message" $ do
+    it "should send EchoMessage for countRepeat" $ do
+      let fixture =
+            emptyFixture
+              { _countRepeat = return 1
+              , _sendMsg = \_ -> return  ()
+              , _nameAdapter = return "Test"
+              }
+      runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
+        Right ()
 --     -- it "should not send EchoMessage for countRepeat" $ do
 --     --   let fixture =
 --     --         emptyFixture
