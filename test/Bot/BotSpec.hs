@@ -1,8 +1,8 @@
 module Bot.BotSpec where
 
-import Bot.Bot
-import Bot.Error
-import Bot.Message
+import Bot.Bot ( Bot(..) )
+import Bot.Error ( Error(NotAnswer) )
+import Bot.Message ( BotMsg(..), BotCompatibleMsg(..) )
 import ClassyPrelude
     ( ($),
       Monad(return, (>>=)),
@@ -20,10 +20,17 @@ import ClassyPrelude
       MonadReader,
       ReaderT(..) )
 import Log.ImportLog
- 
+    ( Log(..), LogConfig(..), LogWrite(..), writeLogHandler )
 import Test.Hspec ( describe, it, shouldReturn, Spec )
 import Control.Monad.Except
-import Fixture
+    ( Monad(return, (>>=)),
+      Functor,
+      MonadIO(..),
+      ExceptT,
+      runExceptT,
+      MonadError(throwError),
+      liftEither )
+import Fixture ( unimplemented )
 
 
 data Fixture m =

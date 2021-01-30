@@ -1,9 +1,9 @@
 module Bot.MessageSpec where
 
-import ClassyPrelude
-import Test.Hspec
-import Bot.Error
+import ClassyPrelude ( ($), Int, Text, length )
+import Test.Hspec ( describe, it, shouldBe, Spec )
 import Bot.Message
+    ( BotMsg(BotMsg), BotCompatibleMsg(..), findLastMsgs, findMaxUpd )
 
 data EmptyMessage =
   EmptyMessage

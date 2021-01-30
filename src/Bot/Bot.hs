@@ -12,5 +12,3 @@ class (Log m, MonadError Error m) =>
   getLastMsgArray :: m [BotMsg]
   sendMsg :: BotMsg -> m ()
   sendMsgHelp :: Text -> BotMsg -> m ()
-
-

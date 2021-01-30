@@ -1,15 +1,46 @@
 module Bot.EchoBotSpec where
 
 import ClassyPrelude
-import Test.Hspec
+    ( ($),
+      Monad(return, (>>=)),
+      Functor,
+      Applicative,
+      Bool(..),
+      Int,
+      IO,
+      Either(..),
+      MonadIO(..),
+      const,
+      Text,
+      asks,
+      getCurrentTime,
+      MonadReader,
+      ReaderT(..) )
+import Test.Hspec ( describe, it, shouldReturn, Spec )
 import Control.Monad.Except
-import Bot.Bot
+    ( Monad(return, (>>=)),
+      Functor,
+      MonadIO(..),
+      ExceptT,
+      runExceptT,
+      MonadError(throwError),
+      liftEither )
+import Bot.Bot ( Bot(..) )
 import Bot.EchoBot
+    ( handingBotMsg,
+      handingBotMsgArray,
+      msgCountRepeat,
+      sendMsgEcho,
+      tryGetCountRepeat,
+      EchoBot(..) )
 import Bot.Error
-import Bot.Message
+    ( Error(CannotRepeatCountSet, CannotRepeatFalseNumber,
+            CannotSendMsg, CannotSendMsgHelp, CannotSendKeyboard) )
+import Bot.Message ( BotMsg(..), BotCompatibleMsg(..) )
 import Log.ImportLog
-import Log.LogMonad
-import Fixture
+    ( Log(..), LogConfig(..), LogWrite(..), writeLogHandler )
+import Log.LogMonad ( Log(..) )
+import Fixture ( unimplemented )
 
 data Fixture m =
   Fixture
