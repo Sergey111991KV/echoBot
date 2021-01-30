@@ -36,6 +36,7 @@ getLastMsgArray = do
         token (staticState st) <> "/" <> getUpdates (staticState st)
   responseLastMsg <- sendReq (telManager $ staticState st) url []
   -- responseLastMsg <- sendJSONraw (telManager $ staticState st) url timeout
+  -- timeout - создать объект? на просто  строку "timeout:10" он не реагирует
   let updT =
         eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
   arrMsg <- either (\_ -> throwError NotAnswer) (return . findLastMsgs  (lastMsgId dynSt) . convertTelMes ) updT

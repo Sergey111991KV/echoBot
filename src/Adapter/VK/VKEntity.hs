@@ -20,6 +20,9 @@ instance FromJSON UpdatesVK where
   parseJSON (Object v) = UpdatesVK <$> v .: "ts" <*> v .: "updates"
   parseJSON _ = mzero
 
+  -- В общем здесь нужно в объекте получить массив массивов, а потом проверять его и на условия длины массивы 
+  -- и первого элемента  - тогда можно будет просто убрать 2-3 функции за не надобностью
+
 data MessageVK =
   MessageVK
     { typeMessage :: Int
@@ -37,7 +40,7 @@ data MessageVK =
 -- instance FromJSON MessageVK where
 --   parseJSON (Array a) = do
 --     x <- parseJSON $ a V.! 0
---     y <- parseJSON  $ a V.! 1
+--     y <- parseJSON $ a V.! 1
 --     e <- parseJSON $ a V.! 2
 --     r <- parseJSON $ a V.! 3
 --     t <- parseJSON $ a V.! 4
