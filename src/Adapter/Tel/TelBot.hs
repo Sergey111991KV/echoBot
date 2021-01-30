@@ -35,12 +35,7 @@ getLastMsgArray = do
         botUrl (staticState st) <>
         token (staticState st) <> "/" <> getUpdates (staticState st)
   responseLastMsg <- sendReq (telManager $ staticState st) url []
-
-                                          -- [("timeout","1000")] -  я попробовал этот параметр отправить,
-                                          -- но что-то не сраслось, запрос проходит, а timeoutа нет
-  -- responseLastMsg' <- sendJSONraw (telManager $ staticState st) url jj
-
-                                          -- sendJSONraw
+  -- responseLastMsg <- sendJSONraw (telManager $ staticState st) url timeout
   let updT =
         eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
   arrMsg <- either (\_ -> throwError NotAnswer) (return . findLastMsgs  (lastMsgId dynSt) . convertTelMes ) updT

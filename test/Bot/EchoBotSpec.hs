@@ -3,7 +3,6 @@ module Bot.EchoBotSpec where
 import ClassyPrelude
 import Test.Hspec
 import Control.Monad.Except
-
 import Bot.Bot
 import Bot.EchoBot
 import Bot.Error
@@ -12,12 +11,11 @@ import Log.ImportLog
 import Log.LogMonad
 import Fixture
 
-
 data Fixture m =
   Fixture
     { _getLastMsgArray :: m [BotMsg]
     , _sendMsg :: BotMsg -> m ()
-    , _sendHelpMsg :: Text -> BotMsg -> m ()
+    , _sendMsgHelp :: Text -> BotMsg -> m ()
     , _writeLog :: LogWrite -> Text -> m ()
     , _writeLogE :: Text -> m ()
     , _writeLogW :: Text -> m ()
@@ -30,8 +28,6 @@ data Fixture m =
     , _sendMsgKeyboard :: BotMsg -> m  ()
     , _nameAdapter :: m Text
     }
-
-    
 
 newtype App a =
   App
@@ -50,7 +46,7 @@ instance Bot App where
     func <- asks _sendMsg 
     liftEither $ func msg
   sendMsgHelp text msg = do
-    func <- asks _sendHelpMsg 
+    func <- asks _sendMsgHelp 
     liftEither  $ func text msg
 
 
@@ -92,7 +88,7 @@ emptyFixture =
   Fixture
     { _getLastMsgArray = unimplemented
     , _sendMsg = const unimplemented
-    , _sendHelpMsg = const unimplemented
+    , _sendMsgHelp = const unimplemented
     , _writeLog = const unimplemented
     , _writeLogE = const unimplemented
     , _writeLogW = const unimplemented
@@ -119,6 +115,7 @@ instance BotCompatibleMsg EmptyMessage where
   chatId = chatIdE
   idMsg = idMsgE
 
+
 spec :: Spec
 spec = do
   describe "sendMsgEcho message" $ do
@@ -131,144 +128,268 @@ spec = do
               }
       runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
         Right ()
---     -- it "should not send EchoMessage for countRepeat" $ do
---     --   let fixture =
---     --         emptyFixture
---     --           { _repeatsCount = return 1
---     --           , _sendMsg = \_ -> return ()
---     --           , _nameAdapter = return "Test"
---     --           }
---     --   runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
---     --     Left EmptyAnswer
---   -- describe "sendMsgKeyboard send" $ do
---   --   it "should send sendMsgKeyboard " $ do
---   --     let fixture =
---   --           emptyFixture
---   --             { _sendKeyboardMsg = \_ -> return ()
---   --             , _nameAdapter = return "Test"
---   --             , _setWaitingForRepeats = \_ -> return ()
---   --             }
---   --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
---   --       Right ()
---   --   it "should not send sendMsgKeyboard just setWaitForRepeat is Error" $ do
---   --     let fixture =
---   --           emptyFixture
---   --             { _sendKeyboardMsg = \_ -> return ()
---   --             -- CannotSendMsg
---   --             , _nameAdapter = return "Test"
---   --             , _setWaitingForRepeats = \_ -> return ()
---   --             }
---   --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
---   --       Left CannotSendMsg
---   --   it "should not send sendMsgKeyboard just sendMsgKeyboard is Error" $ do
---   --     let fixture =
---   --           emptyFixture
---   --             { _sendKeyboardMsg = \_ -> return ()
---   --             -- $ Left EmptyAnswer
---   --             , _nameAdapter = return "Test"
---   --             , _setWaitingForRepeats = \_ -> return ()
---   --             }
---   --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
---   --       Left EmptyAnswer
-  -- describe "processEchoBot " $ do
-  --   it "processEchoBot return right" $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return  ()
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return True
-  --             , _sendHelpMsg = \_ _ -> return  ()
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Right ()
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-  --       Right ()
-  --   it "processEchoBot return error just isWaitForRepeat is false" $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return  ()
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return False
-  --             , _sendHelpMsg = \_ _ -> return  ()
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Left EmptyAnswer
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-  --       Left CannotRepeatCountSet
-  --   it "processEchoBot return error just sendMsg is false" $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return ()
-  --             -- $ Left EmptyAnswer
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return True
-  --             , _sendHelpMsg = \_ _ -> return ()
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Left EmptyAnswer
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-  --       Left EmptyAnswer
-  --   it
-  --     "processEchoBot return error just isWaitForRepeat return false and tryGetCountRepeat is error" $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return  ()
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return False
-  --             , _sendHelpMsg = \_ _ -> return  ()
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Left EmptyAnswer
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-  --       Left CannotRepeatCountSet
-  --   it
-  --     "processEchoBot return error just isWaitForRepeat return false and setWaitForRepeat is error" $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return  ()
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return False
-  --             , _sendHelpMsg = \_ _ -> return  ()
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Right ()
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
-  --       Left CannotRepeatCountSet
-  --   it "processEchoBot return error if sendMsgHelp return error" $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return  ()
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return True
-  --             , _sendHelpMsg = \_ _ -> return ()
-  --             -- $ Left EmptyAnswer
-  --             , _helpMsg = return "Help message"
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Right ()
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "/help" 0 1))) `shouldReturn`
-  --       Left EmptyAnswer
-  --   it
-  --     "processEchoBot return error if message '/repeat' and setWaitForRepeat or sendMsgKeyboard return error " $ do
-  --     let fixture =
-  --           emptyFixture
-  --             { _repeatsCount = return 1
-  --             , _sendMsg = \_ -> return  ()
-  --             , _nameAdapter = return "Test"
-  --             , _isWaitingForRepeats = return True
-  --             , _sendHelpMsg = \_ _ -> return ()
-  --             -- $ Left EmptyAnswer
-  --             , _helpMsg = return "Help message"
-  --                   -- , _tryGetRepeatsCount = \_ -> return $ Right ()
-  --             , _setWaitingForRepeats = \_ -> return ()
-  --             , _sendKeyboardMsg = \_ -> return ()
-  --             -- $ Left EmptyAnswer
-  --             }
-  --     runApp fixture (processEchoBot (BotMsg (EmptyMessage "/repeat" 0 1))) `shouldReturn`
-  --       Left EmptyAnswer
+    it "should not send EchoMessage for countRepeat" $ do
+      let fixture =
+            emptyFixture
+              { _countRepeat = return 1
+              , _sendMsg = \_ -> throwError CannotSendMsg
+              , _nameAdapter = return "Test"
+              }
+      runApp fixture (sendMsgEcho (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
+        Left CannotSendMsg
+
+  describe "msgCountRepeat send" $ do
+    it "should send msgCountRepeat " $ do
+      let fixture =
+            emptyFixture
+              { _writeLogD = \_ -> return ()
+              , _nameAdapter = return "Test"
+              , _sendMsg = \_ -> return ()
+              }
+      runApp fixture (msgCountRepeat 1 (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
+        Right ()
+    it "should not send msgCountRepeat just setWaitForRepeat is Error" $ do
+      let fixture =
+            emptyFixture
+              { _writeLogD = \_ -> return ()
+              , _nameAdapter = return "Test"
+              , _sendMsg = \_ -> throwError CannotSendMsg
+              }
+      runApp fixture (msgCountRepeat 1 (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
+        Left CannotSendMsg
+
+  describe "tryGetCountRepeat " $ do
+    it "tryGetCountRepeat return right" $ do
+      let fixture =
+             emptyFixture
+              { _writeLogD = \_ -> return ()
+              , _writeLogE = \_  -> return ()
+              , _nameAdapter = return "Test"
+              , _sendMsg = \_ -> return ()
+              , _setCountRepeat = \_ -> return ()
+              }
+      runApp fixture (tryGetCountRepeat (BotMsg (EmptyMessage "1" 0 1))) `shouldReturn`
+        Right ()
+    it "tryGetCountRepeat return error just setCountRepeat is false" $ do
+      let fixture =
+             emptyFixture
+              { _writeLogD = \_ -> return ()
+              , _writeLogE = \_  -> return ()
+              , _nameAdapter = return "Test"
+              , _sendMsg = \_ -> return ()
+              , _setCountRepeat = \_ -> throwError CannotRepeatFalseNumber
+              }
+      runApp fixture (tryGetCountRepeat (BotMsg (EmptyMessage "1" 0 1))) `shouldReturn`
+        Left CannotRepeatFalseNumber
+    it "tryGetCountRepeat return error just wrong BotMessage text is false" $ do
+      let fixture =
+             emptyFixture
+              { _writeLogD = \_ -> return ()
+              , _writeLogE = \_  -> return ()
+              , _nameAdapter = return "Test"
+              , _sendMsg = \_ -> return ()
+              }
+      runApp fixture (tryGetCountRepeat (BotMsg (EmptyMessage "" 0 1))) `shouldReturn`
+        Left CannotRepeatCountSet
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return right" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()
+            , _setCountRepeat = \_ -> return ()             
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "Test" 0 1))) `shouldReturn`
+        Right ()
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return right with help message" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _msgHelp = return $ "Help Test" 
+            , _sendMsgHelp = \"Help Test" _ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()
+            , _setCountRepeat = \_ -> return ()             
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "/help" 0 1))) `shouldReturn`
+        Right ()
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return right with keyboard" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()
+            , _setCountRepeat = \_ -> return ()             
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "/repeat" 0 1))) `shouldReturn`
+        Right ()  
+
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return error" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> throwError CannotSendMsg
+            , _setCountRepeat = \_ -> return ()             
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "Test" 0 1))) `shouldReturn`
+        Left CannotSendMsg
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return error with help message" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _msgHelp = return  "Help Test" 
+            , _sendMsgHelp = \_ _ -> throwError CannotSendMsgHelp
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()
+            , _setCountRepeat = \_ -> return ()             
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "/help" 0 1))) `shouldReturn`
+        Left CannotSendMsgHelp
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return error with keyboard" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _sendMsgKeyboard = \_ -> throwError CannotSendKeyboard
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()
+            , _setCountRepeat = \_ -> return ()             
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "/repeat" 0 1))) `shouldReturn`
+         Left CannotSendKeyboard 
+  describe "handingBotMsg " $ do
+    it "handingBotMsg return error with save count repeat" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return False
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()
+            --   | CannotRepeatFalseNumber
+            , _setCountRepeat = \_ -> throwError CannotRepeatCountSet         
+            }
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "test" 0 1))) `shouldReturn`
+        Left CannotRepeatCountSet 
+    it "handingBotMsg return error with save count repeat" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return False
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()      
+            }  
+      runApp fixture (handingBotMsg (BotMsg (EmptyMessage "test" 0 1))) `shouldReturn`
+        Left CannotRepeatCountSet 
+
+  describe "handingBotMsgArray " $ do
+    it "handingBotMsgArray return Right with empty array" $ do
+      let fixture = emptyFixture   
+      runApp fixture (handingBotMsgArray []) `shouldReturn`
+        Right () 
+    it "handingBotMsgArray return error with save count repeat" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return False
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()      
+            }  
+      runApp fixture (handingBotMsgArray [BotMsg (EmptyMessage "test" 0 1)]) `shouldReturn`
+        Left CannotRepeatCountSet 
+
+    it "handingBotMsgArray return right" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()      
+            }  
+      runApp fixture (handingBotMsgArray  [ BotMsg (EmptyMessage "test" 0 1)
+                                          , BotMsg (EmptyMessage "test" 0 1)
+                                          ]) `shouldReturn`
+        Right () 
+    it "handingBotMsgArray return right" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return True
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()      
+            }  
+      runApp fixture (handingBotMsgArray  [ BotMsg (EmptyMessage "/repeat" 0 1)
+                                          , BotMsg (EmptyMessage "1" 0 1)
+                                          ]) `shouldReturn`
+        Right () 
+    it "handingBotMsgArray return false" $ do
+      let fixture =
+             emptyFixture
+            { _countRepeat = return 1
+            , _isWaitForRepeat = return False
+            , _sendMsgKeyboard = \_ -> return ()
+            , _setWaitForRepeat  = \ False -> return ()
+            , _writeLogD = \_ -> return ()
+            , _writeLogE = \_  -> return ()
+            , _nameAdapter = return "Test"
+            , _sendMsg = \_ -> return ()      
+            }  
+      runApp fixture (handingBotMsgArray  [ BotMsg (EmptyMessage "/repeat" 0 1)
+                                          ]) `shouldReturn`
+        Left CannotRepeatCountSet 
+
+
+
+
+
+

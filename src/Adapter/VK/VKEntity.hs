@@ -55,8 +55,7 @@ data MessageVK =
 
                 --- Poblem: I  not understand,  how to write condition array length == 7 and parse value
                 ---             in parseJSON
-            
-
+          
 
 parseArray :: Array -> [BotMsg]
 parseArray arr =

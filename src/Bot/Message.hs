@@ -1,19 +1,17 @@
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 module Bot.Message where
 
 import ClassyPrelude
-    ( ($),
-      Functor(fmap),
-      Ord((>), (<)),
-      Semigroup((<>)),
-      Int,
-      Maybe(..),
-      Text,
-      catMaybes )
-  
+
 
 data BotMsg =
   forall a. BotCompatibleMsg a =>
             BotMsg a 
+            
+-- instance Show BotMsg where
+--   show (BotMsg a) = show $ textMsg a
+
 
 class BotCompatibleMsg a where
   textMsg :: a -> Text
