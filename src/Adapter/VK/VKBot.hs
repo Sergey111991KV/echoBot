@@ -2,7 +2,8 @@ module Adapter.VK.VKBot where
 
 import ClassyPrelude
     ( ($),
-      Monad(return, (>>)),
+      Monad(return),
+      Functor(fmap),
       Show(show),
       Semigroup((<>)),
       Int,
@@ -13,15 +14,15 @@ import ClassyPrelude
       (.),
       either,
       print,
-      concatMap,
       unpack,
       asks,
       swapTVar,
       atomically,
       readTVarIO )
+    
 
 import Control.Monad.Except (MonadError(throwError))
-import Data.Aeson ( eitherDecode, Array ) 
+import Data.Aeson ( eitherDecode ) 
 import Data.ByteString.Lazy.Internal (ByteString)
 import Data.Has (Has(getter))
 
@@ -39,8 +40,7 @@ import Adapter.VK.VKConfig
 import Adapter.VK.VKEntity
     ( ResponseVK(ResponseVK),
       UpdatesVK(UpdatesVK),
-      VKLongPollConfig(server, key, tsLast),
-      parseArray )
+      VKLongPollConfig(server, key, tsLast) )
  
 import Bot.Error ( Error(CantConvertFromData, NotAnswer) )
 import Bot.Request (sendReq, sendReq')
@@ -99,8 +99,11 @@ caseOfGetMsg responseGetMsg = do
   let upd =
         eitherDecode $ responseBody responseGetMsg :: Either String UpdatesVK
   print upd
+
   either (\_ -> throwError CantConvertFromData) 
-        (\ (UpdatesVK ts arr) -> setNewTs ts >>  parseArrays arr )  upd
+        (\ (UpdatesVK ts arr) -> do 
+          setNewTs ts 
+          return $ fmap BotMsg arr )  upd
 
 setNewTs :: VKMonad r m => Int -> m ()
 setNewTs ts = do
@@ -109,10 +112,6 @@ setNewTs ts = do
   let newDynSt = dynSt {longConfig = (longConfig dynSt) {tsLast = ts}}
   _ <- liftIO . atomically $ swapTVar (dynamicState st) newDynSt
   return ()
-
-parseArrays :: VKMonad r m => [Array] -> m [BotMsg]
-parseArrays [] = return []
-parseArrays arrays = return $ concatMap parseArray arrays
 
 
 sendMsg :: VKMonad r m => BotMsg -> m ()

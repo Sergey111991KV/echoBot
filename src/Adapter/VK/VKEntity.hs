@@ -12,7 +12,7 @@ import Bot.Message
 data UpdatesVK =
   UpdatesVK
     { tsCome :: Int
-    , result :: [Array] 
+    , result :: [MessageVK]
     }
   deriving (Show, Generic)
 
@@ -33,11 +33,9 @@ data MessageVK =
     }
   deriving (Show, Generic)
 
-
-parseArray :: Array -> [BotMsg]
-parseArray arr =
-  if V.length arr == 7 && (parseValueInt (arr V.! 0) == 4)
-    then do
+instance FromJSON MessageVK where
+  parseJSON (Array arr) = 
+      if V.length arr == 7 && (parseValueInt (arr V.! 0) == 4) then do
       let x = parseValueInt $ arr V.! 0
       let y = parseValueInt $ arr V.! 1
       let e = parseValueInt $ arr V.! 2
@@ -45,8 +43,10 @@ parseArray arr =
       let t = parseValueInt $ arr V.! 4
       let i = parseValueText $ arr V.! 5
       let u = parseValueText $ arr V.! 6
-      [BotMsg (MessageVK x y e r t i u)]
-    else []
+      return $ MessageVK x y e r t i u
+      else mzero
+  parseJSON _ = mzero
+
 
 parseValueInt :: Value -> Int
 parseValueInt (Number a) = fromInteger $ coefficient a
@@ -91,7 +91,6 @@ instance BotCompatibleMsg MessageVK where
   textMsg m = textVk m
   chatId m = idFrom m
   idMsg m = tsMess m
-  -- isEmpty _ = False
 
 data VKPostMessage =
   VKPostMessage
