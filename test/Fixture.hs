@@ -1,8 +1,6 @@
 module Fixture where
 
 import ClassyPrelude
-import Bot.Error
-import Control.Monad.Except
 
 
 

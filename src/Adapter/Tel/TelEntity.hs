@@ -136,3 +136,11 @@ telKeyb =
     , resize = True
     , oneTime = True
     }
+
+newtype TelegramLongPollParams
+  = TelegramLongPollParams {timeout :: Int}
+  deriving (Show, Generic)
+instance ToJSON TelegramLongPollParams where
+  toJSON (TelegramLongPollParams time) =
+    object
+      ["timeout" .= time]

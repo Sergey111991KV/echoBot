@@ -20,8 +20,6 @@ instance FromJSON UpdatesVK where
   parseJSON (Object v) = UpdatesVK <$> v .: "ts" <*> v .: "updates"
   parseJSON _ = mzero
 
-  -- В общем здесь нужно в объекте получить массив массивов, а потом проверять его и на условия длины массивы 
-  -- и первого элемента  - тогда можно будет просто убрать 2-3 функции за не надобностью
 
 data MessageVK =
   MessageVK
@@ -35,30 +33,6 @@ data MessageVK =
     }
   deriving (Show, Generic)
 
-                -- have some problem here
-
--- instance FromJSON MessageVK where
---   parseJSON (Array a) = do
---     x <- parseJSON $ a V.! 0
---     y <- parseJSON $ a V.! 1
---     e <- parseJSON $ a V.! 2
---     r <- parseJSON $ a V.! 3
---     t <- parseJSON $ a V.! 4
---     i <- parseJSON $ a V.! 5
---     u <- parseJSON $ a V.! 6
---     return $ MessageVK x y e r t i u
---   parseJSON _ = mzero   
-  
-
--- data UpdatesVK =
---   UpdatesVK
---     { tsCome :: Int
---     , result :: [MessageVK] 
---     }
-
-                --- Poblem: I  not understand,  how to write condition array length == 7 and parse value
-                ---             in parseJSON
-          
 
 parseArray :: Array -> [BotMsg]
 parseArray arr =

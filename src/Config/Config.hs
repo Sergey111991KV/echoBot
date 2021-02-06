@@ -79,6 +79,7 @@ telStaticConf configPair =
     , resize = True
     , oneTime = True
     }
+    , Tel.delayTel = Tel.TelegramLongPollParams 2345
       }
   
 vkDynamicConf ::  MonadError Error m =>  [ConfigPair] -> m VKBot.DynamicState

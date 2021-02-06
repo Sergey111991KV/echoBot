@@ -9,7 +9,8 @@ import Network.HTTP.Client ( Manager )
 
 import Log.ImportLog ( LogConfig, Log ) 
 import Bot.Error ( Error ) 
-import Adapter.Tel.TelEntity ( TelKeyboard )
+import Adapter.Tel.TelEntity
+    ( TelKeyboard, TelegramLongPollParams ) 
 
 type TelMonad r m = (Has  State r, MonadReader r m, MonadIO m, MonadError Error m, Log m)
 
@@ -41,4 +42,5 @@ data StaticState =
     , log :: LogConfig
     , telManager :: Manager 
     , telKeyboard :: TelKeyboard
+    , delayTel :: TelegramLongPollParams
     } deriving Generic

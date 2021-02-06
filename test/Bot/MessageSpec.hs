@@ -3,7 +3,7 @@ module Bot.MessageSpec where
 import ClassyPrelude ( ($), Int, Text, length )
 import Test.Hspec ( describe, it, shouldBe, Spec )
 import Bot.Message
-    ( BotMsg(BotMsg), BotCompatibleMsg(..), findLastMsgs, findMaxUpd )
+   
 
 data EmptyMessage =
   EmptyMessage
@@ -28,7 +28,7 @@ spec = do
                             ,   BotMsg (EmptyMessage "" 0 6)
                             ] `shouldBe` 10
         it "should return 0 from empty array" $ do
-            findMaxUpd    [ ] `shouldBe` 0
+            findMaxUpd    [ ] `shouldBe` 0 
     describe "findLastMsgs" $ do
         it "should find max Id from message" $ do
            length (findLastMsgs    0   [   BotMsg (EmptyMessage "" 0 1)

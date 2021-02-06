@@ -47,7 +47,7 @@ maximum' (x:xs) = if x > head' xs then maximum' (x: tail' xs) else maximum' xs
 
 tail' ::  [Int] -> [Int]
 tail' [] = []
-tail' [x] = [x]
+tail' [_] = []
 tail' (_:xs) = xs
 
 head' ::[Int] -> Int

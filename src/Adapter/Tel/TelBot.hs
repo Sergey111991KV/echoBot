@@ -4,42 +4,33 @@ import ClassyPrelude
   
 
 import Control.Monad.Except (MonadError(catchError, throwError))
-import Data.Aeson (eitherDecode)
 import Data.Has (Has(getter))
-
-import Network.HTTP.Client (Response(responseBody))
-
 import Adapter.Tel.TelConfig
-  ( DynamicState(lastMsgId)
-  , State(dynamicState, staticState)
-  , StaticState(botUrl, getUpdates, telManager, textSendMsgTel, token)
-  , TelMonad
-  )
-import Adapter.Tel.TelEntity (TelUpdate(updateMsg), TelUpdates(result))
-import Control.Concurrent (threadDelay)
-
-import Bot.Error (Error(CannotSendMsg, NotAnswer))
-
+    ( DynamicState(lastMsgId),
+      State(dynamicState, staticState),
+      StaticState(getUpdates, delayTel, botUrl, token, textSendMsgTel,
+                  telManager),
+      TelMonad )
+ 
+import Adapter.Tel.TelEntity
+   
+import Bot.Error ( Error(CannotSendMsg) ) 
 import Bot.Message
-  
-import Bot.Request
+    ( BotCompatibleMsg(chatId, textMsg),
+      BotMsg(..),
+      findMaxUpd,
+      findLastMsgs )
+import Bot.Request ( buildJsonObject, sendJSON, sendJSON' )
 import Log.ImportLog ( Log(writeLogD) )
+
 
 getLastMsgArray :: TelMonad r m => m [BotMsg]
 getLastMsgArray = do
   writeLogD "getLastMsgArray Telegram" 
-  liftIO (threadDelay 1000000) --- оставил ее здесь
   st <- asks getter
   dynSt <- readTVarIO $ dynamicState st
-  let url =
-        botUrl (staticState st) <>
-        token (staticState st) <> "/" <> getUpdates (staticState st)
-  responseLastMsg <- sendReq (telManager $ staticState st) url []
-  -- responseLastMsg <- sendJSONraw (telManager $ staticState st) url timeout
-  -- timeout - создать объект? на просто  строку "timeout:10" он не реагирует
-  let updT =
-        eitherDecode $ responseBody responseLastMsg :: Either String TelUpdates
-  arrMsg <- either (\_ -> throwError NotAnswer) (return . findLastMsgs  (lastMsgId dynSt) . convertTelMes ) updT
+  updT <- getTelUpdates
+  let arrMsg = findLastMsgs  (lastMsgId dynSt) (convertTelMes updT)
   let idMax = findMaxUpd arrMsg
   if idMax == 0
     then return arrMsg
@@ -48,6 +39,13 @@ getLastMsgArray = do
       _ <- liftIO . atomically $ swapTVar (dynamicState st) newState
       return arrMsg
 
+getTelUpdates :: TelMonad r m =>  m TelUpdates
+getTelUpdates  = do
+  st <- asks getter
+  let url =
+        botUrl (staticState st) <>
+        token (staticState st) <> "/" <> getUpdates (staticState st)
+  sendJSON (telManager $ staticState st) url (delayTel $ staticState st)
 
 convertTelMes :: TelUpdates -> [BotMsg]
 convertTelMes telUpd = fmap fp (result telUpd)
