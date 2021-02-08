@@ -13,7 +13,7 @@ import Adapter.Tel.TelConfig
       TelMonad )
  
 import Adapter.Tel.TelEntity
-   
+import Data.Aeson
 import Bot.Error ( Error(CannotSendMsg) ) 
 import Bot.Message
     ( BotCompatibleMsg(chatId, textMsg),
