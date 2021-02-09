@@ -13,7 +13,7 @@ import Adapter.Tel.TelConfig
       TelMonad )
  
 import Adapter.Tel.TelEntity
-import Data.Aeson
+
 import Bot.Error ( Error(CannotSendMsg) ) 
 import Bot.Message
     ( BotCompatibleMsg(chatId, textMsg),
@@ -48,9 +48,7 @@ getTelUpdates  = do
   sendJSON (telManager $ staticState st) url (delayTel $ staticState st)
 
 convertTelMes :: TelUpdates -> [BotMsg]
-convertTelMes telUpd = fmap fp (result telUpd)
-  where
-    fp a = BotMsg $ updateMsg a
+convertTelMes telUpd = BotMsg . updateMsg <$> result telUpd
 
 sendMsg :: TelMonad r m => BotMsg -> m ()
 sendMsg (BotMsg botMsg) = do

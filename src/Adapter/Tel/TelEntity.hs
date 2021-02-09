@@ -3,14 +3,7 @@ module Adapter.Tel.TelEntity where
 import ClassyPrelude
   
 import Data.Aeson
-  ( FromJSON(parseJSON)
-  , KeyValue((.=))
-  , ToJSON(toJSON)
-  , Value(Object)
-  , (.:)
-  , object
-  , withObject
-  )
+  
 
 import Bot.Message
 
@@ -139,8 +132,5 @@ telKeyb =
 
 newtype TelegramLongPollParams
   = TelegramLongPollParams {timeout :: Int}
-  deriving (Show, Generic)
-instance ToJSON TelegramLongPollParams where
-  toJSON (TelegramLongPollParams time) =
-    object
-      ["timeout" .= time]
+  deriving (Show, Generic, ToJSON)
+
